@@ -13,8 +13,9 @@ DEMAIS = "Demais municípios da região"
 SOMA_FOCO = "Canaã + Parauapebas"
 
 # Total de municípios segundo o IBGE (usado quando a média é sobre "todos os municípios")
-N_MUNICIPIOS = {"PA": 144, "BR": 5570}
+N_MUNICIPIOS = {"RC": 12, "PA": 144, "BR": 5570}   # RC = região de Carajás (os 12 da lista acima)
 
+REF_RC = "Média dos municípios da região de Carajás"
 REF_PA = "Média dos municípios do Pará"
 REF_BR = "Média dos municípios do Brasil"
 
@@ -24,6 +25,7 @@ CORES = {
     "Canaã dos Carajás": "#eb6834",
     DEMAIS: "#a3a29c",
     SOMA_FOCO: "#3d3c39",
+    REF_RC: "#6250d6",
     REF_PA: "#1baf7a",
     REF_BR: "#52514e",
     "contexto": "#c9c8c2",
@@ -52,3 +54,6 @@ def norm(txt) -> str:
 
 MAPA_MUN = {norm(m): m for m in REGIAO_CARAJAS}
 FOCO_NORM = {norm(m) for m in FOCO}
+
+# Chaves "UF|MUNICÍPIO" (como na base nacional agregada) dos 12 municípios da região de Carajás
+CHAVES_REGIAO = {f"{UF_ALVO}|{norm(m)}" for m in REGIAO_CARAJAS}

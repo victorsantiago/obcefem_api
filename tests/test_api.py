@@ -39,6 +39,10 @@ def test_indicadores_batem_com_o_csv(cliente):
     assert medias["PA"]["valor_medio"] == pytest.approx(159_568_238.0, rel=1e-6)
     assert medias["BR"]["municipios"] == 3277
     assert medias["PA"]["vezes"]["Parauapebas"] == pytest.approx(34.33, rel=1e-3)
+    # região de Carajás: 11 dos 12 municípios têm arrecadação (São Domingos do Araguaia não tem)
+    assert medias["RC"]["municipios"] == 11
+    assert medias["RC"]["valor_medio"] == pytest.approx(12_378_886_806.77 / 11, rel=1e-9)
+    assert medias["RC"]["vezes"]["Parauapebas"] == pytest.approx(4.87, rel=1e-2)
 
 
 def test_denominador_todos_e_exclusao_do_foco(cliente):
@@ -46,6 +50,8 @@ def test_denominador_todos_e_exclusao_do_foco(cliente):
     medias = {x["escopo"]: x for x in d["medias"]}
     assert medias["PA"]["municipios"] == 142 and medias["BR"]["municipios"] == 5568
     assert medias["PA"]["valor_medio"] == pytest.approx(18_969_960, rel=1e-5)
+    assert medias["RC"]["municipios"] == 10
+    assert medias["RC"]["valor_medio"] == pytest.approx((12_378_886_806.77 - 10_869_565_906.65) / 10, rel=1e-9)
 
 
 def test_filtros_de_substancia_mes_e_municipio(cliente):

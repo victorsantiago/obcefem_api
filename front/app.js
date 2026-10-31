@@ -13,9 +13,11 @@ const DEMAIS = "Demais municípios da região";
 const SOMA = "Canaã + Parauapebas";
 const REF_PA = "Média dos municípios do Pará";
 const REF_BR = "Média dos municípios do Brasil";
+const REF_RC = "Média dos municípios da região de Carajás";
+const ESCOPOS = [["RC", "Região"], ["PA", "PA"], ["BR", "BR"]];   // médias de referência, da mais próxima à mais ampla
 const COR_VAR = {
   "Parauapebas": "--c-parauapebas", "Canaã dos Carajás": "--c-canaa", [DEMAIS]: "--c-demais",
-  [SOMA]: "--c-soma", [REF_PA]: "--c-media-pa", [REF_BR]: "--c-media-br",
+  [SOMA]: "--c-soma", [REF_RC]: "--c-media-rc", [REF_PA]: "--c-media-pa", [REF_BR]: "--c-media-br",
 };
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 const MESES_LONGOS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
@@ -412,11 +414,15 @@ function desenharIndicadores(resp, fl) {
   } else if (!d.foco_soma.valor) {
     html = `${esc(textoPeriodo(fl))}, ${mun("Parauapebas", "p")} e ${mun("Canaã dos Carajás", "c")} não têm registros com estes filtros. A região somou <b>${brl(d.total_regiao)}</b>.`;
   } else {
-    const vp = medias.PA.vezes["Parauapebas"], vc = medias.PA.vezes["Canaã dos Carajás"];
     const verbo = fl.base === "arrecadacao" ? "recolheram" : "receberam autos que somam";
-    const comparacao = vezesTexto(vp) === vezesTexto(vc)
-      ? `Cada um ${fl.base === "arrecadacao" ? "recolheu" : "soma"} <b>${vezesTexto(vp)} vezes</b> a média de um município ${mun("do Pará", "m")}.`
-      : `${mun("Parauapebas", "p")} ${fl.base === "arrecadacao" ? "recolheu" : "soma"} <b>${vezesTexto(vp)} vezes</b> e ${mun("Canaã", "c")} <b>${vezesTexto(vc)} vezes</b> a média de um município ${mun("do Pará", "m")}.`;
+    const par = (esc) => [vezesTexto(medias[esc].vezes["Parauapebas"]), vezesTexto(medias[esc].vezes["Canaã dos Carajás"])];
+    const [rp, rc] = par("RC"), [pp, pc] = par("PA");
+    const regiao = mun("da região de Carajás", "r"), para = mun("do Pará", "m");
+    const txt = (a, b) => (a === b ? a : `${a} e ${b}`);
+    const iguais = rp === rc && pp === pc;
+    const sujeito = iguais ? `Cada um ${fl.base === "arrecadacao" ? "recolheu" : "soma"}`
+      : `Parauapebas e Canaã ${fl.base === "arrecadacao" ? "recolheram" : "somam"}, respectivamente,`;
+    const comparacao = `${sujeito} <b>${txt(rp, rc)} vezes</b> a média de um município ${regiao} e <b>${txt(pp, pc)} vezes</b> a de um município ${para}.`;
     html = `${esc(textoPeriodo(fl))}, ${mun("Parauapebas", "p")} e ${mun("Canaã dos Carajás", "c")} ${verbo} <b>${brl(d.foco_soma.valor)}</b> de CFEM${esc(subst)}, `
       + `<b>${pct(d.foco_soma.participacao_regiao_pct)}</b> do total da região de Carajás. ${comparacao}`;
   }
@@ -431,10 +437,9 @@ function desenharIndicadores(resp, fl) {
     cifra("Parauapebas", brl(P.valor), `${pct(P.participacao_regiao_pct)} da região`, "--c-parauapebas"),
     cifra("Canaã dos Carajás", brl(C.valor), `${pct(C.participacao_regiao_pct)} da região`, "--c-canaa"),
     cifra("As duas somadas", brl(d.foco_soma.valor), `${pct(d.foco_soma.participacao_regiao_pct)} da região`, "--c-soma"),
-    cifra("Média por município do Pará", brl(medias.PA.valor_medio),
-      `Parauapebas ${vezes(medias.PA.vezes["Parauapebas"])}, Canaã ${vezes(medias.PA.vezes["Canaã dos Carajás"])}<br>${NF0.format(medias.PA.municipios)} municípios na média`, "--c-media-pa"),
-    cifra("Média por município do Brasil", brl(medias.BR.valor_medio),
-      `Parauapebas ${vezes(medias.BR.vezes["Parauapebas"])}, Canaã ${vezes(medias.BR.vezes["Canaã dos Carajás"])}<br>${NF0.format(medias.BR.municipios)} municípios na média`, "--c-media-br"),
+    ...[["RC", "Média por município da região", "--c-media-rc"], ["PA", "Média por município do Pará", "--c-media-pa"],
+      ["BR", "Média por município do Brasil", "--c-media-br"]].map(([e, rotulo, cor]) => cifra(rotulo, brl(medias[e].valor_medio),
+      `Parauapebas ${vezes(medias[e].vezes["Parauapebas"])}, Canaã ${vezes(medias[e].vezes["Canaã dos Carajás"])}<br>${NF0.format(medias[e].municipios)} ${medias[e].municipios === 1 ? "município" : "municípios"} na média`, cor)),
   ].join("");
 }
 
@@ -463,8 +468,8 @@ function desenharMedias(resp, fl) {
     ...d.municipios.map((m) => ({
       type: "bar", name: m.nome, x, y: m.valores.map((v) => (v ? v / 1e6 : null)),
       marker: { color: corSerie(m.nome), line: { color: css("--surface"), width: 1 } },
-      customdata: m.valores.map((v, i) => [brl(v, false), vezes(m.vezes_media_pa[i]), vezes(m.vezes_media_br[i])]),
-      hovertemplate: `<b>${m.nome}</b>, %{x}<br>%{customdata[0]}<br>%{customdata[1]} a média do Pará<br>%{customdata[2]} a média do Brasil<extra></extra>`,
+      customdata: m.valores.map((v, i) => [brl(v, false), vezes(m.vezes_media_rc[i]), vezes(m.vezes_media_pa[i]), vezes(m.vezes_media_br[i])]),
+      hovertemplate: `<b>${m.nome}</b>, %{x}<br>%{customdata[0]}<br>%{customdata[1]} a média da região<br>%{customdata[2]} a média do Pará<br>%{customdata[3]} a média do Brasil<extra></extra>`,
     })),
     ...d.medias.map((m) => ({
       type: "bar", name: m.nome, x, y: m.valor_medio.map((v) => (v ? v / 1e6 : null)),
@@ -479,19 +484,29 @@ function desenharMedias(resp, fl) {
   // tabela
   const P = "Parauapebas", C = "Canaã dos Carajás";
   const mP = d.municipios.find((m) => m.nome === P), mC = d.municipios.find((m) => m.nome === C);
-  const [pa, br] = d.medias;
-  let linhas = d.anos.map((a, i) => `<tr><td>${esc(a.rotulo)}</td><td>${brl(mP.valores[i])}</td><td>${brl(mC.valores[i])}</td>
-    <td>${brl(pa.valor_medio[i])}</td><td>${brl(br.valor_medio[i])}</td>
-    <td>${vezes(mP.vezes_media_pa[i])}</td><td>${vezes(mP.vezes_media_br[i])}</td><td>${vezes(mC.vezes_media_pa[i])}</td><td>${vezes(mC.vezes_media_br[i])}</td>
-    <td>${NF0.format(pa.municipios[i])}</td><td>${NF0.format(br.municipios[i])}</td></tr>`).join("");
+  const med = Object.fromEntries(d.medias.map((m) => [m.escopo, m]));
   const per = d.periodo, pP = per.municipios.find((m) => m.nome === P), pC = per.municipios.find((m) => m.nome === C);
-  const [ppa, pbr] = per.medias;
-  linhas += `<tr class="total"><td>${esc(per.rotulo)}</td><td>${brl(pP.valor)}</td><td>${brl(pC.valor)}</td><td>${brl(ppa.valor_medio)}</td><td>${brl(pbr.valor_medio)}</td>
-    <td>${vezes(pP.vezes_media_pa)}</td><td>${vezes(pP.vezes_media_br)}</td><td>${vezes(pC.vezes_media_pa)}</td><td>${vezes(pC.vezes_media_br)}</td>
-    <td>${NF0.format(ppa.municipios)}</td><td>${NF0.format(pbr.municipios)}</td></tr>`;
+  const pmed = Object.fromEntries(per.medias.map((m) => [m.escopo, m]));
+  const chave = (e) => `vezes_media_${e.toLowerCase()}`;
+  const celulas = (vals) => vals.map((v) => `<td>${v}</td>`).join("");
+  let linhas = d.anos.map((a, i) => `<tr><td>${esc(a.rotulo)}</td>${celulas([
+    brl(mP.valores[i]), brl(mC.valores[i]),
+    ...ESCOPOS.map(([e]) => brl(med[e].valor_medio[i])),
+    ...ESCOPOS.map(([e]) => vezes(mP[chave(e)][i])),
+    ...ESCOPOS.map(([e]) => vezes(mC[chave(e)][i])),
+    ...ESCOPOS.map(([e]) => NF0.format(med[e].municipios[i])),
+  ])}</tr>`).join("");
+  linhas += `<tr class="total"><td>${esc(per.rotulo)}</td>${celulas([
+    brl(pP.valor), brl(pC.valor),
+    ...ESCOPOS.map(([e]) => brl(pmed[e].valor_medio)),
+    ...ESCOPOS.map(([e]) => vezes(pP[chave(e)])),
+    ...ESCOPOS.map(([e]) => vezes(pC[chave(e)])),
+    ...ESCOPOS.map(([e]) => NF0.format(pmed[e].municipios)),
+  ])}</tr>`;
+  const sub = ESCOPOS.map(([, r]) => `<th>${r}</th>`).join("");
   $("#t-medias").innerHTML = `<thead>
-    <tr class="grupo"><th rowspan="2">Ano</th><th colspan="4">Valor</th><th colspan="2">Parauapebas ÷ média</th><th colspan="2">Canaã ÷ média</th><th colspan="2">Municípios na média</th></tr>
-    <tr><th>Parauapebas</th><th>Canaã</th><th>Média PA</th><th>Média BR</th><th>PA</th><th>BR</th><th>PA</th><th>BR</th><th>PA</th><th>BR</th></tr>
+    <tr class="grupo"><th rowspan="2">Ano</th><th colspan="5">Valor</th><th colspan="3">Parauapebas ÷ média</th><th colspan="3">Canaã ÷ média</th><th colspan="3">Municípios na média</th></tr>
+    <tr><th>Parauapebas</th><th>Canaã</th>${ESCOPOS.map(([, r]) => `<th>Média ${r === "Região" ? "região" : r}</th>`).join("")}${sub}${sub}${sub}</tr>
     </thead><tbody>${linhas}</tbody>`;
 }
 

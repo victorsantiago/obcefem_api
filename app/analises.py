@@ -14,11 +14,12 @@ import numpy as np
 import pandas as pd
 
 from app import config
-from app.dominio import (BASES, CORES, DEMAIS, FOCO, MESES_ABREV, N_MUNICIPIOS, REF_BR, REF_PA,
+from app.dominio import (BASES, CHAVES_REGIAO, CORES, DEMAIS, FOCO, MESES_ABREV, N_MUNICIPIOS, REF_BR, REF_PA, REF_RC,
                          REGIAO_CARAJAS, SOMA_FOCO)
 from app.repositorio import Dados
 
-ESCOPOS = (("PA", REF_PA), ("BR", REF_BR))
+# Médias de referência, da mais próxima para a mais ampla: região de Carajás, Pará e Brasil
+ESCOPOS = (("RC", REF_RC), ("PA", REF_PA), ("BR", REF_BR))
 
 
 # ============================================================================ filtros
@@ -90,7 +91,7 @@ def info_anos(dados: Dados, f: Filtros) -> list[dict]:
 
 
 def descricao_media(f: Filtros) -> str:
-    base = ("todos os municípios (PA 144 · BR 5.570)" if f.denominador == "todos"
+    base = ("todos os municípios (região 12, PA 144, BR 5.570)" if f.denominador == "todos"
             else "municípios com registro no período")
     return f"média = total ÷ {base}" + (", sem Canaã e Parauapebas" if f.excluir_foco_das_medias else "")
 
@@ -129,7 +130,8 @@ def filtrar(dados: Dados, f: Filtros) -> pd.DataFrame:
 
 def medias_referencia(dados: Dados, f: Filtros, por_ano: bool = True) -> dict[str, pd.DataFrame]:
     """Valor médio por município (Pará e Brasil) com os mesmos filtros de período, substância e titular.
-    Retorna {"PA"|"BR": DataFrame[Total, Municipios, Media]} indexado por ano (ou 'periodo')."""
+    A média da região usa sempre os 12 municípios de Carajás (não depende do filtro de municípios).
+    Retorna {"RC"|"PA"|"BR": DataFrame[Total, Municipios, Media]} indexado por ano (ou 'periodo')."""
     n = dados.nacional[f.base]
     m = n["Ano"].between(f.ano_inicio, f.ano_fim)
     if f.base == "arrecadacao":
@@ -143,7 +145,12 @@ def medias_referencia(dados: Dados, f: Filtros, por_ano: bool = True) -> dict[st
     n = n[m]
     saida = {}
     for escopo, _ in ESCOPOS:
-        sub = n[n["UF"].eq("PA")] if escopo == "PA" else n
+        if escopo == "RC":
+            sub = n[n["Chave"].isin(CHAVES_REGIAO)]
+        elif escopo == "PA":
+            sub = n[n["UF"].eq("PA")]
+        else:
+            sub = n
         if por_ano:
             total = sub.groupby("Ano")["Valor"].sum().reindex(f.anos, fill_value=0)
             qtd = sub[sub["Valor"] > 0].groupby("Ano")["Chave"].nunique().reindex(f.anos, fill_value=0)
@@ -215,6 +222,7 @@ def comparacao_medias(dados: Dados, f: Filtros) -> dict:
         "anos": info_anos(dados, f),
         "descricao_media": descricao_media(f),
         "municipios": [{"nome": m, "cor": CORES[m], "valores": _lista(s),
+                        "vezes_media_rc": [_vezes(v, a) for v, a in zip(s, ref["RC"]["Media"])],
                         "vezes_media_pa": [_vezes(v, a) for v, a in zip(s, ref["PA"]["Media"])],
                         "vezes_media_br": [_vezes(v, b) for v, b in zip(s, ref["BR"]["Media"])]}
                        for m, s in foco.items()],
@@ -224,6 +232,7 @@ def comparacao_medias(dados: Dados, f: Filtros) -> dict:
         "periodo": {
             "rotulo": f"{f.ano_inicio}–{f.ano_fim}",
             "municipios": [{"nome": m, "valor": float(s.sum()),
+                            "vezes_media_rc": _vezes(s.sum(), ref_p["RC"]["Media"].iat[0]),
                             "vezes_media_pa": _vezes(s.sum(), ref_p["PA"]["Media"].iat[0]),
                             "vezes_media_br": _vezes(s.sum(), ref_p["BR"]["Media"].iat[0])} for m, s in foco.items()],
             "medias": [{"escopo": e, "nome": rot, "valor_medio": _num(ref_p[e]["Media"].iat[0]),
