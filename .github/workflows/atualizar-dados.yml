@@ -1,0 +1,47 @@
+# Atualização diária dos dados para a hospedagem na Vercel (modo pré-processado).
+# A ANM regrava os CSVs por volta das 6h (Brasília). Este workflow roda às 07:45 de Belém (10:45 UTC),
+# baixa e processa os arquivos e, se o conteúdo mudou, faz commit de dados_processados/.
+# O commit dispara um novo deploy na Vercel automaticamente (integração Git).
+name: Atualizar dados da ANM
+
+on:
+  schedule:
+    - cron: "45 10 * * *"
+  workflow_dispatch:        # botão "Run workflow" na aba Actions
+
+permissions:
+  contents: write
+
+concurrency:
+  group: atualizar-dados
+  cancel-in-progress: false
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Baixar e processar os CSVs da ANM
+        run: python scripts/gerar_dados.py
+
+      - name: Publicar se houver dados novos
+        run: |
+          if [ -n "$(git status --porcelain dados_processados)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add dados_processados
+            git commit -m "Dados da ANM de $(date -u +%Y-%m-%d)"
+            git push
+          else
+            echo "Sem mudanças nos dados da ANM."
+          fi
