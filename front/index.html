@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CFEM Carajás</title>
+  <meta name="description" content="Arrecadação e autuações da CFEM em Parauapebas e Canaã dos Carajás comparadas à região de Carajás e às médias do Pará e do Brasil.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilo.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M4 26 13 8l5 9 3-5 7 14z' fill='%232a78d6'/%3E%3Cpath d='m13 8 5 9-4 9H4z' fill='%23eb6834'/%3E%3C/svg%3E">
+  <script src="vendor/plotly.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="pular" href="#conteudo">Ir para os gráficos</a>
+
+  <div class="estrutura">
+    <!-- ============================== Filtros ============================== -->
+    <aside class="lateral" id="lateral" aria-label="Filtros">
+      <div class="marca">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 26 13 8l5 9 3-5 7 14z" fill="var(--c-parauapebas)"/><path d="m13 8 5 9-4 9H4z" fill="var(--c-canaa)"/></svg>
+        <div>
+          <strong>CFEM Carajás</strong>
+          <span>Dados abertos da ANM</span>
+        </div>
+        <button class="fechar-lateral" type="button" aria-label="Fechar filtros" data-acao="fechar-filtros">×</button>
+      </div>
+
+      <form id="filtros" autocomplete="off">
+        <fieldset>
+          <legend>Base</legend>
+          <div class="segmentado" role="radiogroup">
+            <label><input type="radio" name="base" value="arrecadacao" checked><span>Arrecadação</span></label>
+            <label><input type="radio" name="base" value="autuacao"><span>Autuações</span></label>
+          </div>
+          <p class="dica" id="dica-base"></p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Período</legend>
+          <div class="par">
+            <label>De <select name="ano_inicio"></select></label>
+            <label>até <select name="ano_fim"></select></label>
+          </div>
+          <div class="par" id="grupo-meses">
+            <label>Meses <select name="mes_inicio"></select></label>
+            <label>a <select name="mes_fim"></select></label>
+          </div>
+          <div class="aviso-parcial" id="aviso-parcial" hidden>
+            <p></p>
+            <button type="button" class="botao-texto" data-acao="meses-completos"></button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Substâncias</legend>
+          <input type="search" id="busca-substancia" placeholder="Buscar substância" aria-label="Buscar substância">
+          <div class="lista-marcar" id="lista-substancias" role="group" aria-label="Substâncias"></div>
+          <div class="linha-acoes">
+            <span id="resumo-substancias">Todas</span>
+            <button type="button" class="botao-texto" data-acao="todas-substancias">Limpar seleção</button>
+          </div>
+          <label class="marcar"><input type="checkbox" name="agrupar_substancias" checked> Somar “minério de X” com “X”</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Titular</legend>
+          <select name="tipo_titular" aria-label="Tipo de titular">
+            <option value="Todos">Pessoas físicas e jurídicas</option>
+            <option value="PJ">Só pessoas jurídicas</option>
+            <option value="PF">Só pessoas físicas</option>
+          </select>
+        </fieldset>
+
+        <fieldset>
+          <legend>Municípios da comparação</legend>
+          <div class="lista-marcar curta" id="lista-municipios" role="group" aria-label="Municípios"></div>
+          <div class="linha-acoes">
+            <span id="resumo-municipios">Os 12 municípios</span>
+            <button type="button" class="botao-texto" data-acao="todos-municipios">Marcar todos</button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Médias do Pará e do Brasil</legend>
+          <label class="marcar"><input type="radio" name="denominador" value="com_registro" checked> Só municípios com arrecadação no período</label>
+          <label class="marcar"><input type="radio" name="denominador" value="todos"> Todos os municípios (PA 144, Brasil 5.570)</label>
+          <label class="marcar"><input type="checkbox" name="excluir_foco_das_medias"> Tirar Canaã e Parauapebas das médias</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Exibição</legend>
+          <label class="marcar"><input type="checkbox" name="escala" value="log"> Escala logarítmica</label>
+          <label class="par-unico">Itens nos rankings
+            <select name="top_n"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>30</option></select>
+          </label>
+        </fieldset>
+
+        <div class="acoes-finais">
+          <a class="botao" id="link-csv" href="#" download>Baixar dados filtrados (CSV)</a>
+          <a class="botao secundario" id="link-json" href="#" target="_blank" rel="noopener">Abrir todos os dados (JSON)</a>
+          <button type="button" class="botao-texto" data-acao="restaurar">Restaurar filtros</button>
+        </div>
+      </form>
+
+      <footer class="estado-dados" id="estado-dados" aria-live="polite">
+        <p id="texto-estado">Conectando à API…</p>
+        <details>
+          <summary>Atualizar agora</summary>
+          <form id="form-admin">
+            <label>Token de administração <input type="password" name="token" required></label>
+            <label class="marcar"><input type="checkbox" name="forcar"> Reprocessar mesmo sem mudanças</label>
+            <button class="botao secundario" type="submit">Verificar o portal da ANM</button>
+            <p class="dica" id="msg-admin" role="status"></p>
+          </form>
+        </details>
+      </footer>
+    </aside>
+
+    <!-- ============================== Conteúdo ============================== -->
+    <main id="conteudo" tabindex="-1">
+      <div class="barra-movel">
+        <button type="button" class="botao secundario" data-acao="abrir-filtros" aria-controls="lateral">Filtros</button>
+        <span id="resumo-movel"></span>
+      </div>
+
+      <header class="topo">
+        <p class="manchete" id="manchete" aria-live="polite">Carregando os dados da CFEM…</p>
+        <ul class="notas" id="notas"></ul>
+      </header>
+
+      <section class="cifras" id="sec-indicadores" aria-label="Indicadores" data-estado="carregando">
+        <div class="cifras-grade" id="cifras"></div>
+      </section>
+
+      <section class="bloco" id="sec-evolucao" data-estado="carregando">
+        <h2>Evolução anual</h2>
+        <p class="sub">Parauapebas, Canaã dos Carajás e os demais municípios selecionados. A pilha inteira é o total da região.</p>
+        <div class="grafico" id="g-evolucao" role="img" aria-label="Gráfico de barras empilhadas por ano"></div>
+      </section>
+
+      <section class="bloco" id="sec-medias" data-estado="carregando">
+        <h2>Comparação com a média do Pará e do Brasil</h2>
+        <p class="sub" id="sub-medias"></p>
+        <div class="grafico" id="g-medias" role="img" aria-label="Barras agrupadas por ano em escala logarítmica"></div>
+        <div class="tabela-rolagem"><table class="tabela" id="t-medias"></table></div>
+      </section>
+
+      <div class="dupla">
+        <section class="bloco" id="sec-participacao" data-estado="carregando">
+          <h2>Participação no total da região</h2>
+          <p class="sub">Quanto de tudo o que a região arrecadou veio de cada município.</p>
+          <div class="grafico" id="g-participacao" role="img" aria-label="Linhas de participação percentual por ano"></div>
+        </section>
+        <section class="bloco" id="sec-substancias" data-estado="carregando">
+          <h2>Substâncias</h2>
+          <p class="sub">As de maior valor no período, separadas por município.</p>
+          <div class="grafico" id="g-substancias" role="img" aria-label="Barras horizontais por substância"></div>
+        </section>
+      </div>
+
+      <section class="bloco" id="sec-ranking" data-estado="carregando">
+        <h2>Ranking da região</h2>
+        <p class="sub" id="sub-ranking"></p>
+        <div class="grafico" id="g-ranking" role="img" aria-label="Barras horizontais por município"></div>
+      </section>
+
+      <section class="bloco" id="sec-mensal" data-estado="carregando">
+        <h2>Mês a mês</h2>
+        <p class="sub" id="sub-mensal">A faixa cinza marca os meses que a ANM ainda não publicou por completo.</p>
+        <div class="grafico" id="g-mensal" role="img" aria-label="Linhas mensais"></div>
+      </section>
+
+      <section class="bloco" id="sec-calor" data-estado="carregando">
+        <h2>Município × ano</h2>
+        <p class="sub">Cor em escala logarítmica; células vazias não têm registro.</p>
+        <div class="grafico" id="g-calor" role="img" aria-label="Mapa de calor"></div>
+      </section>
+
+      <section class="bloco" id="sec-titulares" data-estado="carregando">
+        <h2>Maiores titulares em Parauapebas e Canaã</h2>
+        <p class="sub" id="sub-titulares"></p>
+        <div class="tabela-rolagem"><table class="tabela" id="t-titulares"></table></div>
+      </section>
+
+      <section class="bloco" id="sec-resumo" data-estado="carregando">
+        <h2>Tabela resumo</h2>
+        <p class="sub" id="sub-resumo"></p>
+        <div class="tabela-rolagem"><table class="tabela" id="t-resumo"></table></div>
+      </section>
+
+      <footer class="rodape">
+        <p>Fonte: <a href="https://dadosabertos.anm.gov.br/CFEM/" target="_blank" rel="noopener">Agência Nacional de Mineração, dados abertos da CFEM</a>. Valores nominais, sem correção pela inflação.</p>
+      </footer>
+    </main>
+  </div>
+  <div class="veu" data-acao="fechar-filtros" hidden></div>
+</body>
+</html>

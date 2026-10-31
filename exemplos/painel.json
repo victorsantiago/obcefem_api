@@ -1,0 +1,1400 @@
+{
+  "filtros": {
+    "base": "arrecadacao",
+    "ano_inicio": 2022,
+    "ano_fim": 2026,
+    "mes_inicio": 1,
+    "mes_fim": 12,
+    "substancias": [],
+    "agrupar_substancias": true,
+    "tipo_titular": "Todos",
+    "municipios": [
+      "Bom Jesus do Tocantins",
+      "Brejo Grande do Araguaia",
+      "Canaã dos Carajás",
+      "Curionópolis",
+      "Eldorado do Carajás",
+      "Marabá",
+      "Palestina do Pará",
+      "Parauapebas",
+      "Piçarra",
+      "São Domingos do Araguaia",
+      "São Geraldo do Araguaia",
+      "São João do Araguaia"
+    ],
+    "denominador": "com_registro",
+    "excluir_foco_das_medias": false,
+    "top_n": 10
+  },
+  "versao_dados": "fef79154beff",
+  "notas": [
+    "Valor recolhido pelas mineradoras referente à produção do município; não é o repasse à prefeitura (a cota do município produtor é 60%, Lei 13.540/2017).",
+    "2026 é parcial: o volume de registros só é completo até jun. Para comparar com outros anos use mes_fim=6.",
+    "Valores nominais (sem correção monetária)."
+  ],
+  "dados": {
+    "indicadores": {
+      "total_regiao": 12378886806.77,
+      "municipios_selecionados": 12,
+      "foco": [
+        {
+          "municipio": "Parauapebas",
+          "cor": "#2a78d6",
+          "valor": 5478602757.45,
+          "participacao_regiao_pct": 44.25763675659235
+        },
+        {
+          "municipio": "Canaã dos Carajás",
+          "cor": "#eb6834",
+          "valor": 5390963149.2,
+          "participacao_regiao_pct": 43.549660267122626
+        }
+      ],
+      "foco_soma": {
+        "nome": "Canaã + Parauapebas",
+        "valor": 10869565906.65,
+        "participacao_regiao_pct": 87.80729702371497
+      },
+      "medias": [
+        {
+          "escopo": "PA",
+          "nome": "Média dos municípios do Pará",
+          "cor": "#1baf7a",
+          "valor_medio": 159568237.99929413,
+          "total": 13563300229.94,
+          "municipios": 85,
+          "vezes": {
+            "Parauapebas": 34.333917740410435,
+            "Canaã dos Carajás": 33.78468808575706
+          }
+        },
+        {
+          "escopo": "BR",
+          "nome": "Média dos municípios do Brasil",
+          "cor": "#52514e",
+          "valor_medio": 10196948.54906622,
+          "total": 33415400395.29,
+          "municipios": 3277,
+          "vezes": {
+            "Parauapebas": 537.27865067552,
+            "Canaã dos Carajás": 528.6839610163253
+          }
+        }
+      ],
+      "descricao_media": "média = total ÷ municípios com registro no período",
+      "registros": 2534
+    },
+    "evolucao_anual": {
+      "anos": [
+        {
+          "ano": 2022,
+          "rotulo": "2022",
+          "parcial": false
+        },
+        {
+          "ano": 2023,
+          "rotulo": "2023",
+          "parcial": false
+        },
+        {
+          "ano": 2024,
+          "rotulo": "2024",
+          "parcial": false
+        },
+        {
+          "ano": 2025,
+          "rotulo": "2025",
+          "parcial": false
+        },
+        {
+          "ano": 2026,
+          "rotulo": "2026 (parcial)",
+          "parcial": true
+        }
+      ],
+      "series": [
+        {
+          "nome": "Parauapebas",
+          "cor": "#2a78d6",
+          "valores": [
+            1385101594.96,
+            1192851160.39,
+            1412922211.23,
+            1102944678.86,
+            384783112.01
+          ],
+          "participacao_pct": [
+            52.24429792676739,
+            48.2132106935511,
+            45.19225918624681,
+            39.48374287670596,
+            28.85113955592425
+          ]
+        },
+        {
+          "nome": "Canaã dos Carajás",
+          "cor": "#eb6834",
+          "valores": [
+            1060669068.24,
+            1043511662.0,
+            1378188860.46,
+            1248202989.59,
+            660390568.91
+          ],
+          "participacao_pct": [
+            40.007109229007575,
+            42.17713767804408,
+            44.081314381268335,
+            44.683769588377494,
+            49.51625960274331
+          ]
+        },
+        {
+          "nome": "Demais municípios da região",
+          "cor": "#a3a29c",
+          "valores": [
+            205430807.44,
+            237754008.31,
+            335358453.56,
+            442267034.67,
+            288510596.14
+          ],
+          "participacao_pct": [
+            7.748592844225039,
+            9.609651628404809,
+            10.726426432484864,
+            15.832487534916545,
+            21.63260084133244
+          ]
+        }
+      ],
+      "totais": [
+        2651201470.64,
+        2474116830.7000003,
+        3126469525.25,
+        2793414703.12,
+        1333684277.06
+      ]
+    },
+    "comparacao_medias": {
+      "anos": [
+        {
+          "ano": 2022,
+          "rotulo": "2022",
+          "parcial": false
+        },
+        {
+          "ano": 2023,
+          "rotulo": "2023",
+          "parcial": false
+        },
+        {
+          "ano": 2024,
+          "rotulo": "2024",
+          "parcial": false
+        },
+        {
+          "ano": 2025,
+          "rotulo": "2025",
+          "parcial": false
+        },
+        {
+          "ano": 2026,
+          "rotulo": "2026 (parcial)",
+          "parcial": true
+        }
+      ],
+      "descricao_media": "média = total ÷ municípios com registro no período",
+      "municipios": [
+        {
+          "nome": "Parauapebas",
+          "cor": "#2a78d6",
+          "valores": [
+            1385101594.96,
+            1192851160.39,
+            1412922211.23,
+            1102944678.86,
+            384783112.01
+          ],
+          "vezes_media_pa": [
+            34.54495389145842,
+            31.369252066471287,
+            30.94659228896405,
+            26.049888586806393,
+            17.55119228058366
+          ],
+          "vezes_media_br": [
+            547.0862315757546,
+            482.6975190905705,
+            512.5158581972544,
+            397.50503049331763,
+            269.41535766506695
+          ]
+        },
+        {
+          "nome": "Canaã dos Carajás",
+          "cor": "#eb6834",
+          "valores": [
+            1060669068.24,
+            1043511662.0,
+            1378188860.46,
+            1248202989.59,
+            660390568.91
+          ],
+          "vezes_media_pa": [
+            26.453484848889445,
+            27.441965474450324,
+            30.185843511313337,
+            29.480670640839506,
+            30.12253265138678
+          ],
+          "vezes_media_br": [
+            418.9421524051788,
+            422.2660019249964,
+            499.91686800765575,
+            449.85662195828326,
+            462.3886957827318
+          ]
+        }
+      ],
+      "medias": [
+        {
+          "escopo": "PA",
+          "nome": "Média dos municípios do Pará",
+          "cor": "#1baf7a",
+          "valor_medio": [
+            40095627.260410964,
+            38026126.91760564,
+            45656794.71383562,
+            42339708.10219178,
+            21923474.24942029
+          ],
+          "total": [
+            2926980790.01,
+            2699855011.15,
+            3332946014.11,
+            3090798691.46,
+            1512719723.21
+          ],
+          "municipios": [
+            73,
+            71,
+            73,
+            73,
+            69
+          ]
+        },
+        {
+          "escopo": "BR",
+          "nome": "Média dos municípios do Brasil",
+          "cor": "#52514e",
+          "valor_medio": [
+            2531779.297334055,
+            2471218.7513153153,
+            2756836.083472371,
+            2774668.480273588,
+            1428215.2114296188
+          ],
+          "total": [
+            7018092212.21,
+            6857632034.9,
+            7732925214.14,
+            7910579837.26,
+            3896171096.78
+          ],
+          "municipios": [
+            2772,
+            2775,
+            2805,
+            2851,
+            2728
+          ]
+        }
+      ],
+      "periodo": {
+        "rotulo": "2022–2026",
+        "municipios": [
+          {
+            "nome": "Parauapebas",
+            "valor": 5478602757.450001,
+            "vezes_media_pa": 34.33391774041044,
+            "vezes_media_br": 537.2786506755201
+          },
+          {
+            "nome": "Canaã dos Carajás",
+            "valor": 5390963149.2,
+            "vezes_media_pa": 33.78468808575706,
+            "vezes_media_br": 528.6839610163253
+          }
+        ],
+        "medias": [
+          {
+            "escopo": "PA",
+            "nome": "Média dos municípios do Pará",
+            "valor_medio": 159568237.99929413,
+            "total": 13563300229.94,
+            "municipios": 85
+          },
+          {
+            "escopo": "BR",
+            "nome": "Média dos municípios do Brasil",
+            "valor_medio": 10196948.54906622,
+            "total": 33415400395.29,
+            "municipios": 3277
+          }
+        ]
+      }
+    },
+    "participacao": {
+      "anos": [
+        {
+          "ano": 2022,
+          "rotulo": "2022",
+          "parcial": false
+        },
+        {
+          "ano": 2023,
+          "rotulo": "2023",
+          "parcial": false
+        },
+        {
+          "ano": 2024,
+          "rotulo": "2024",
+          "parcial": false
+        },
+        {
+          "ano": 2025,
+          "rotulo": "2025",
+          "parcial": false
+        },
+        {
+          "ano": 2026,
+          "rotulo": "2026 (parcial)",
+          "parcial": true
+        }
+      ],
+      "series": [
+        {
+          "nome": "Parauapebas",
+          "cor": "#2a78d6",
+          "valores": [
+            1385101594.96,
+            1192851160.39,
+            1412922211.23,
+            1102944678.86,
+            384783112.01
+          ],
+          "participacao_pct": [
+            52.24429792676739,
+            48.2132106935511,
+            45.19225918624681,
+            39.48374287670596,
+            28.85113955592425
+          ]
+        },
+        {
+          "nome": "Canaã dos Carajás",
+          "cor": "#eb6834",
+          "valores": [
+            1060669068.24,
+            1043511662.0,
+            1378188860.46,
+            1248202989.59,
+            660390568.91
+          ],
+          "participacao_pct": [
+            40.007109229007575,
+            42.17713767804408,
+            44.081314381268335,
+            44.683769588377494,
+            49.51625960274331
+          ]
+        },
+        {
+          "nome": "Canaã + Parauapebas",
+          "cor": "#3d3c39",
+          "valores": [
+            2445770663.2,
+            2236362822.3900003,
+            2791111071.69,
+            2351147668.45,
+            1045173680.92
+          ],
+          "participacao_pct": [
+            92.25140715577496,
+            90.3903483715952,
+            89.27357356751514,
+            84.16751246508345,
+            78.36739915866757
+          ]
+        }
+      ],
+      "totais_regiao": [
+        2651201470.64,
+        2474116830.7000003,
+        3126469525.25,
+        2793414703.12,
+        1333684277.06
+      ]
+    },
+    "ranking": {
+      "itens": [
+        {
+          "posicao": 1,
+          "municipio": "Parauapebas",
+          "valor": 5478602757.45,
+          "participacao_pct": 44.25763675659235,
+          "foco": true,
+          "sem_registros": false,
+          "cor": "#2a78d6"
+        },
+        {
+          "posicao": 2,
+          "municipio": "Canaã dos Carajás",
+          "valor": 5390963149.2,
+          "participacao_pct": 43.54966026712263,
+          "foco": true,
+          "sem_registros": false,
+          "cor": "#eb6834"
+        },
+        {
+          "posicao": 3,
+          "municipio": "Marabá",
+          "valor": 1165285178.82,
+          "participacao_pct": 9.413489249959914,
+          "foco": false,
+          "sem_registros": false,
+          "cor": "#c9c8c2"
+        },
+        {
+          "posicao": 4,
+          "municipio": "Curionópolis",
+          "valor": 339931818.76,
+          "participacao_pct": 2.74606129021304,
+          "foco": false,
+          "sem_registros": false,
+          "cor": "#c9c8c2"
+        },
+        {
+          "posicao": 5,
+          "municipio": "São Geraldo do Araguaia",
+          "valor": 2293345.88,
+          "participacao_pct": 0.018526269088637047,
+          "foco": false,
+          "sem_registros": false,
+          "cor": "#c9c8c2"
+        },
+        {
+          "posicao": 6,
+          "municipio": "Eldorado do Carajás",
+          "valor": 1226644.56,
+          "participacao_pct": 0.009909166948106753,
+          "foco": false,
+          "sem_registros": false,
+          "cor": "#c9c8c2"
+        },
+        {
+          "posicao": 7,
+          "municipio": "Palestina do Pará",
+          "valor": 209844.31,
+          "participacao_pct": 0.001695179164941038,
+          "foco": false,
+          "sem_registros": false,
+          "cor": "#c9c8c2"
+        },
+        {
+          "posicao": 8,
+          "municipio": "Brejo Grande do Araguaia",
+          "valor": 199256.22999999998,
+          "participacao_pct": 0.0016096457873015445,
+          "foco": false,
+          "sem_registros": false,
+          "cor": "#c9c8c2"
+        },
+        {
+          "posicao": 9,
+          "municipio": "Piçarra",
+          "valor": 150989.9,
+          "participacao_pct": 0.0012197373023673161,
+          "foco": false,
+          "sem_registros": false,
+          "cor": "#c9c8c2"
+        },
+        {
+          "posicao": 10,
+          "municipio": "São João do Araguaia",
+          "valor": 12252.16,
+          "participacao_pct": 9.897626653552813e-05,
+          "foco": false,
+          "sem_registros": false,
+          "cor": "#c9c8c2"
+        },
+        {
+          "posicao": 11,
+          "municipio": "Bom Jesus do Tocantins",
+          "valor": 11569.5,
+          "participacao_pct": 9.346155418169471e-05,
+          "foco": false,
+          "sem_registros": false,
+          "cor": "#c9c8c2"
+        },
+        {
+          "posicao": 12,
+          "municipio": "São Domingos do Araguaia",
+          "valor": 0.0,
+          "participacao_pct": 0.0,
+          "foco": false,
+          "sem_registros": true,
+          "cor": "#c9c8c2"
+        }
+      ],
+      "total": 12378886806.769999,
+      "medias_periodo": [
+        {
+          "escopo": "PA",
+          "nome": "Média dos municípios do Pará",
+          "cor": "#1baf7a",
+          "valor_medio": 159568237.99929413,
+          "municipios": 85
+        },
+        {
+          "escopo": "BR",
+          "nome": "Média dos municípios do Brasil",
+          "cor": "#52514e",
+          "valor_medio": 10196948.54906622,
+          "municipios": 3277
+        }
+      ],
+      "descricao_media": "média = total ÷ municípios com registro no período"
+    },
+    "serie_mensal": {
+      "meses": [
+        "2022-01",
+        "2022-02",
+        "2022-03",
+        "2022-04",
+        "2022-05",
+        "2022-06",
+        "2022-07",
+        "2022-08",
+        "2022-09",
+        "2022-10",
+        "2022-11",
+        "2022-12",
+        "2023-01",
+        "2023-02",
+        "2023-03",
+        "2023-04",
+        "2023-05",
+        "2023-06",
+        "2023-07",
+        "2023-08",
+        "2023-09",
+        "2023-10",
+        "2023-11",
+        "2023-12",
+        "2024-01",
+        "2024-02",
+        "2024-03",
+        "2024-04",
+        "2024-05",
+        "2024-06",
+        "2024-07",
+        "2024-08",
+        "2024-09",
+        "2024-10",
+        "2024-11",
+        "2024-12",
+        "2025-01",
+        "2025-02",
+        "2025-03",
+        "2025-04",
+        "2025-05",
+        "2025-06",
+        "2025-07",
+        "2025-08",
+        "2025-09",
+        "2025-10",
+        "2025-11",
+        "2025-12",
+        "2026-01",
+        "2026-02",
+        "2026-03",
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "series": [
+        {
+          "nome": "Parauapebas",
+          "cor": "#2a78d6",
+          "valores": [
+            115196774.42,
+            107101397.56,
+            109262015.14000002,
+            108870348.96,
+            103978831.06,
+            114386941.44,
+            118926065.52,
+            144335133.53,
+            133421069.07,
+            120497188.98,
+            110141206.45,
+            98984622.83,
+            92456247.75999999,
+            80840503.38,
+            75839452.24999999,
+            90055502.12,
+            75270532.77,
+            92452283.42,
+            88204684.9,
+            113441285.66,
+            127632095.84,
+            123607179.78,
+            129568036.26,
+            103483356.25,
+            145951595.06,
+            234782508.08999997,
+            93121730.41,
+            80392085.84,
+            69122049.46,
+            73563528.83999999,
+            112729011.5,
+            115101285.02000001,
+            139948035.42999998,
+            112881136.86,
+            106081077.27,
+            129248167.44999999,
+            120784171.36999999,
+            84820044.69000001,
+            52658544.47,
+            71586510.06,
+            78002832.49000001,
+            76716322.32000001,
+            91026077.89,
+            101005809.75,
+            109971419.91,
+            101282931.02,
+            118660624.4,
+            96429390.49,
+            92417157.47,
+            72463028.81,
+            56496418.6,
+            49379714.330000006,
+            56153085.25999999,
+            57650380.919999994,
+            223326.62,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "nome": "Canaã dos Carajás",
+          "cor": "#eb6834",
+          "valores": [
+            82758139.65,
+            93639318.11,
+            64156119.32,
+            75862627.55,
+            88838303.55,
+            93237476.82,
+            106797763.12,
+            118048204.09,
+            88955151.32000001,
+            90594297.63000001,
+            73319077.4,
+            84462589.68,
+            76740875.08000001,
+            67215098.19,
+            70651838.19000001,
+            89523996.28999999,
+            97220227.08999999,
+            100556492.93,
+            90273954.3,
+            80157495.38,
+            98503260.00999999,
+            95197897.38,
+            91320408.53,
+            86150118.63,
+            134366109.79,
+            211859194.0,
+            98238680.34,
+            100128271.15,
+            71039941.99,
+            98662690.42999999,
+            111460688.8,
+            116744839.19,
+            117735138.19,
+            96653856.29,
+            104429799.4,
+            116869650.89,
+            122770096.84,
+            98166283.47,
+            78964662.37000002,
+            101294669.07000001,
+            101032755.85,
+            105289992.84,
+            98765223.27,
+            104419511.25,
+            116402677.97,
+            94926395.05,
+            117044716.14,
+            109126005.47,
+            120419160.19,
+            85510297.16,
+            130187706.24,
+            103311034.99,
+            119321749.08999999,
+            101640621.24,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "nome": "Demais municípios da região",
+          "cor": "#a3a29c",
+          "valores": [
+            24807109.0,
+            17302475.62,
+            18001127.61,
+            15505963.95,
+            18104153.97,
+            19242133.16,
+            18461339.53,
+            16476606.040000001,
+            15440874.700000001,
+            21567342.99,
+            16126295.82,
+            4395385.05,
+            26528250.580000002,
+            14980869.62,
+            5782741.9,
+            22465551.89,
+            16147114.53,
+            16381629.29,
+            23134582.98,
+            19122668.6,
+            18846791.959999997,
+            26813419.02,
+            26703437.359999996,
+            20846950.580000002,
+            28260442.67,
+            40589051.31,
+            20863763.46,
+            24197241.11,
+            16897945.29,
+            30869498.160000004,
+            30357899.89,
+            21787513.06,
+            31034433.46,
+            29888083.78,
+            30207184.249999996,
+            30405397.12,
+            46918306.849999994,
+            24921861.13,
+            27625956.669999998,
+            33874104.46,
+            34423048.85,
+            36804554.88,
+            33246812.92,
+            31242406.61,
+            36983019.42,
+            38883741.55,
+            46481116.08,
+            50862105.25,
+            64397030.53999999,
+            40144166.44,
+            49959052.36,
+            44443316.64,
+            42734318.46,
+            46601120.54,
+            175501.07,
+            27805.93,
+            28284.16
+          ]
+        }
+      ],
+      "incompleto_a_partir_de": "2026-07"
+    },
+    "substancias": {
+      "categorias": [
+        "FERRO",
+        "COBRE",
+        "MANGANÊS",
+        "NÍQUEL",
+        "GRANITO",
+        "CALCÁRIO",
+        "AREIA",
+        "CASCALHO",
+        "GNAISSE",
+        "ARGILA"
+      ],
+      "totais": [
+        10843233139.84,
+        1479060822.8799999,
+        22924168.54,
+        22836123.25,
+        4407506.26,
+        2540891.83,
+        1806601.83,
+        683170.69,
+        303072.92,
+        227098.88
+      ],
+      "series": [
+        {
+          "nome": "Parauapebas",
+          "cor": "#2a78d6",
+          "valores": [
+            5451999645.39,
+            0.0,
+            16347.27,
+            22836123.25,
+            3284347.09,
+            0.0,
+            0.0,
+            0.0,
+            303072.92,
+            0.0
+          ]
+        },
+        {
+          "nome": "Canaã dos Carajás",
+          "cor": "#eb6834",
+          "valores": [
+            5053509517.89,
+            337312744.17,
+            0.0,
+            0.0,
+            140887.14,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "nome": "Demais municípios da região",
+          "cor": "#a3a29c",
+          "valores": [
+            337723976.56,
+            1141748078.71,
+            22907821.27,
+            0.0,
+            982272.03,
+            2540891.83,
+            1806601.83,
+            683170.69,
+            0.0,
+            227098.88
+          ]
+        }
+      ]
+    },
+    "mapa_calor": {
+      "anos": [
+        {
+          "ano": 2022,
+          "rotulo": "2022",
+          "parcial": false
+        },
+        {
+          "ano": 2023,
+          "rotulo": "2023",
+          "parcial": false
+        },
+        {
+          "ano": 2024,
+          "rotulo": "2024",
+          "parcial": false
+        },
+        {
+          "ano": 2025,
+          "rotulo": "2025",
+          "parcial": false
+        },
+        {
+          "ano": 2026,
+          "rotulo": "2026 (parcial)",
+          "parcial": true
+        }
+      ],
+      "municipios": [
+        "Parauapebas",
+        "Canaã dos Carajás",
+        "Marabá",
+        "Curionópolis",
+        "São Geraldo do Araguaia",
+        "Eldorado do Carajás",
+        "Palestina do Pará",
+        "Brejo Grande do Araguaia",
+        "Piçarra",
+        "São João do Araguaia",
+        "Bom Jesus do Tocantins",
+        "São Domingos do Araguaia"
+      ],
+      "valores": [
+        [
+          1385101594.96,
+          1192851160.39,
+          1412922211.23,
+          1102944678.86,
+          384783112.01
+        ],
+        [
+          1060669068.24,
+          1043511662.0,
+          1378188860.46,
+          1248202989.59,
+          660390568.91
+        ],
+        [
+          144771984.93,
+          180426454.0,
+          254506476.78,
+          358107360.71999997,
+          227472902.39
+        ],
+        [
+          60094796.88,
+          55899197.89,
+          80107727.14,
+          83388622.11,
+          60441474.74
+        ],
+        [
+          199229.09,
+          951375.15,
+          373561.81,
+          383811.9,
+          385367.93
+        ],
+        [
+          288990.41000000003,
+          297622.17,
+          253958.76,
+          191115.27,
+          194957.95
+        ],
+        [
+          31341.15,
+          123562.48,
+          48829.99,
+          5009.07,
+          1101.62
+        ],
+        [
+          44376.979999999996,
+          0.0,
+          0.0,
+          154879.25,
+          0.0
+        ],
+        [
+          0.0,
+          51753.409999999996,
+          55540.93,
+          31844.89,
+          11850.67
+        ],
+        [
+          88.0,
+          3479.68,
+          1579.37,
+          4164.27,
+          2940.84
+        ],
+        [
+          0.0,
+          563.53,
+          10778.78,
+          227.19,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "totais_municipio": [
+        5478602757.450001,
+        5390963149.2,
+        1165285178.8200002,
+        339931818.76000005,
+        2293345.8800000004,
+        1226644.56,
+        209844.31,
+        199256.22999999998,
+        150989.9,
+        12252.16,
+        11569.500000000002,
+        0.0
+      ],
+      "minimo_positivo": 88.0,
+      "maximo": 1412922211.23
+    },
+    "titulares": {
+      "itens": [
+        {
+          "titular": "VALE S.A. (33.592.510/0001-54)",
+          "valores": {
+            "Parauapebas": 5438621016.98,
+            "Canaã dos Carajás": 5126061359.34
+          },
+          "total": 10564682376.32,
+          "participacao_foco_pct": 97.19507169882955
+        },
+        {
+          "titular": "SALOBO METAIS S/A (33.931.478/0001-94)",
+          "valores": {
+            "Parauapebas": 0.0,
+            "Canaã dos Carajás": 264563911.85
+          },
+          "total": 264563911.85,
+          "participacao_foco_pct": 2.4339878346764503
+        },
+        {
+          "titular": "LIGGA S.A. (13.732.348/0001-15)",
+          "valores": {
+            "Parauapebas": 20113722.38,
+            "Canaã dos Carajás": 0.0
+          },
+          "total": 20113722.38,
+          "participacao_foco_pct": 0.1850462341618852
+        },
+        {
+          "titular": "48.256.824/0001-53",
+          "valores": {
+            "Parauapebas": 14812318.0,
+            "Canaã dos Carajás": 0.0
+          },
+          "total": 14812318.0,
+          "participacao_foco_pct": 0.13627331695866368
+        },
+        {
+          "titular": "Geoterra Serviços e Mineração Ltda (05.025.210/0001-58)",
+          "valores": {
+            "Parauapebas": 3155946.32,
+            "Canaã dos Carajás": 0.0
+          },
+          "total": 3155946.32,
+          "participacao_foco_pct": 0.029034704302857137
+        },
+        {
+          "titular": "17.591.369/0001-19",
+          "valores": {
+            "Parauapebas": 1305058.55,
+            "Canaã dos Carajás": 0.0
+          },
+          "total": 1305058.55,
+          "participacao_foco_pct": 0.01200653789864382
+        },
+        {
+          "titular": "MONTE GRANITO MINERACAO E COMERCIO LTDA (10.500.217/0001-14)",
+          "valores": {
+            "Parauapebas": 303072.92,
+            "Canaã dos Carajás": 0.0
+          },
+          "total": 303072.92,
+          "participacao_foco_pct": 0.002788270687190737
+        },
+        {
+          "titular": "15.779.377/0001-68",
+          "valores": {
+            "Parauapebas": 291622.3,
+            "Canaã dos Carajás": 0.0
+          },
+          "total": 291622.3,
+          "participacao_foco_pct": 0.002682924989870897
+        },
+        {
+          "titular": "10.528.755/0001-17",
+          "valores": {
+            "Parauapebas": 0.0,
+            "Canaã dos Carajás": 196990.87
+          },
+          "total": 196990.87,
+          "participacao_foco_pct": 0.0018123158890777874
+        },
+        {
+          "titular": "15.715.870/0001-14",
+          "valores": {
+            "Parauapebas": 0.0,
+            "Canaã dos Carajás": 140887.14
+          },
+          "total": 140887.14,
+          "participacao_foco_pct": 0.0012961616058080596
+        }
+      ],
+      "total_foco": 10869565906.65,
+      "observacao": "Na arrecadação, o nome vem da base de autuações quando o CNPJ aparece lá; senão, só o CNPJ."
+    },
+    "tabela_resumo": {
+      "anos": [
+        {
+          "ano": 2022,
+          "rotulo": "2022",
+          "parcial": false
+        },
+        {
+          "ano": 2023,
+          "rotulo": "2023",
+          "parcial": false
+        },
+        {
+          "ano": 2024,
+          "rotulo": "2024",
+          "parcial": false
+        },
+        {
+          "ano": 2025,
+          "rotulo": "2025",
+          "parcial": false
+        },
+        {
+          "ano": 2026,
+          "rotulo": "2026 (parcial)",
+          "parcial": true
+        }
+      ],
+      "linhas": [
+        {
+          "tipo": "municipio",
+          "nome": "Parauapebas",
+          "foco": true,
+          "valores": [
+            1385101594.96,
+            1192851160.39,
+            1412922211.23,
+            1102944678.86,
+            384783112.01
+          ],
+          "total": 5478602757.450001,
+          "participacao_pct": 44.25763675659235
+        },
+        {
+          "tipo": "municipio",
+          "nome": "Canaã dos Carajás",
+          "foco": true,
+          "valores": [
+            1060669068.24,
+            1043511662.0,
+            1378188860.46,
+            1248202989.59,
+            660390568.91
+          ],
+          "total": 5390963149.2,
+          "participacao_pct": 43.549660267122626
+        },
+        {
+          "tipo": "municipio",
+          "nome": "Marabá",
+          "foco": false,
+          "valores": [
+            144771984.93,
+            180426454.0,
+            254506476.78,
+            358107360.71999997,
+            227472902.39
+          ],
+          "total": 1165285178.8200002,
+          "participacao_pct": 9.413489249959914
+        },
+        {
+          "tipo": "municipio",
+          "nome": "Curionópolis",
+          "foco": false,
+          "valores": [
+            60094796.88,
+            55899197.89,
+            80107727.14,
+            83388622.11,
+            60441474.74
+          ],
+          "total": 339931818.76000005,
+          "participacao_pct": 2.74606129021304
+        },
+        {
+          "tipo": "municipio",
+          "nome": "São Geraldo do Araguaia",
+          "foco": false,
+          "valores": [
+            199229.09,
+            951375.15,
+            373561.81,
+            383811.9,
+            385367.93
+          ],
+          "total": 2293345.8800000004,
+          "participacao_pct": 0.018526269088637047
+        },
+        {
+          "tipo": "municipio",
+          "nome": "Eldorado do Carajás",
+          "foco": false,
+          "valores": [
+            288990.41000000003,
+            297622.17,
+            253958.76,
+            191115.27,
+            194957.95
+          ],
+          "total": 1226644.56,
+          "participacao_pct": 0.009909166948106752
+        },
+        {
+          "tipo": "municipio",
+          "nome": "Palestina do Pará",
+          "foco": false,
+          "valores": [
+            31341.15,
+            123562.48,
+            48829.99,
+            5009.07,
+            1101.62
+          ],
+          "total": 209844.31,
+          "participacao_pct": 0.0016951791649410376
+        },
+        {
+          "tipo": "municipio",
+          "nome": "Brejo Grande do Araguaia",
+          "foco": false,
+          "valores": [
+            44376.979999999996,
+            0.0,
+            0.0,
+            154879.25,
+            0.0
+          ],
+          "total": 199256.22999999998,
+          "participacao_pct": 0.0016096457873015443
+        },
+        {
+          "tipo": "municipio",
+          "nome": "Piçarra",
+          "foco": false,
+          "valores": [
+            0.0,
+            51753.409999999996,
+            55540.93,
+            31844.89,
+            11850.67
+          ],
+          "total": 150989.9,
+          "participacao_pct": 0.0012197373023673161
+        },
+        {
+          "tipo": "municipio",
+          "nome": "São João do Araguaia",
+          "foco": false,
+          "valores": [
+            88.0,
+            3479.68,
+            1579.37,
+            4164.27,
+            2940.84
+          ],
+          "total": 12252.16,
+          "participacao_pct": 9.89762665355281e-05
+        },
+        {
+          "tipo": "municipio",
+          "nome": "Bom Jesus do Tocantins",
+          "foco": false,
+          "valores": [
+            0.0,
+            563.53,
+            10778.78,
+            227.19,
+            0.0
+          ],
+          "total": 11569.500000000002,
+          "participacao_pct": 9.346155418169471e-05
+        },
+        {
+          "tipo": "municipio",
+          "nome": "São Domingos do Araguaia",
+          "foco": false,
+          "valores": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "total": 0.0,
+          "participacao_pct": 0.0
+        },
+        {
+          "tipo": "total",
+          "nome": "Total da região",
+          "foco": false,
+          "valores": [
+            2651201470.64,
+            2474116830.7000003,
+            3126469525.25,
+            2793414703.12,
+            1333684277.06
+          ],
+          "total": 12378886806.77,
+          "participacao_pct": 100.0
+        },
+        {
+          "tipo": "media",
+          "escopo": "PA",
+          "nome": "Média dos municípios do Pará",
+          "foco": false,
+          "valores": [
+            40095627.260410964,
+            38026126.91760564,
+            45656794.71383562,
+            42339708.10219178,
+            21923474.24942029
+          ],
+          "total": 159568237.99929413,
+          "participacao_pct": null,
+          "municipios": [
+            73,
+            71,
+            73,
+            73,
+            69
+          ]
+        },
+        {
+          "tipo": "media",
+          "escopo": "BR",
+          "nome": "Média dos municípios do Brasil",
+          "foco": false,
+          "valores": [
+            2531779.297334055,
+            2471218.7513153153,
+            2756836.083472371,
+            2774668.480273588,
+            1428215.2114296188
+          ],
+          "total": 10196948.54906622,
+          "participacao_pct": null,
+          "municipios": [
+            2772,
+            2775,
+            2805,
+            2851,
+            2728
+          ]
+        }
+      ],
+      "descricao_media": "média = total ÷ municípios com registro no período",
+      "observacao": "Nas linhas de média, 'total' é a média do período inteiro (não a soma das médias anuais)."
+    }
+  }
+}

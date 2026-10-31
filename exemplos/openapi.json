@@ -1,0 +1,2730 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "API CFEM — Canaã dos Carajás e Parauapebas × Região de Carajás",
+    "description": "Dados abertos da ANM (https://dadosabertos.anm.gov.br/CFEM/) processados para o painel: arrecadação e autuações dos 12 municípios da região de Carajás, com foco em Parauapebas e Canaã dos Carajás, e médias por município do Pará e do Brasil.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/saude": {
+      "get": {
+        "tags": [
+          "sistema"
+        ],
+        "summary": "Estado da carga dos dados",
+        "operationId": "saude_api_v1_saude_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/meta": {
+      "get": {
+        "tags": [
+          "sistema"
+        ],
+        "summary": "Opções para montar os filtros no front (anos, substâncias, municípios, cores, cobertura)",
+        "operationId": "meta_api_v1_meta_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/atualizar": {
+      "post": {
+        "tags": [
+          "sistema"
+        ],
+        "summary": "Força a verificação/baixa dos CSVs na ANM (header X-Admin-Token)",
+        "operationId": "admin_atualizar_api_v1_admin_atualizar_post",
+        "parameters": [
+          {
+            "name": "forcar",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Forcar"
+            }
+          },
+          {
+            "name": "x-admin-token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Token"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/indicadores": {
+      "get": {
+        "tags": [
+          "visualizações"
+        ],
+        "summary": "Cartões: total da região, Parauapebas, Canaã, soma e médias PA/BR",
+        "operationId": "indicadores_api_v1_indicadores_get",
+        "parameters": [
+          {
+            "name": "base",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "arrecadacao",
+                "autuacao"
+              ],
+              "type": "string",
+              "description": "Base de dados",
+              "default": "arrecadacao",
+              "title": "Base"
+            },
+            "description": "Base de dados"
+          },
+          {
+            "name": "ano_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: primeiro ano da base",
+              "title": "Ano Inicio"
+            },
+            "description": "Padrão: primeiro ano da base"
+          },
+          {
+            "name": "ano_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: último ano da base",
+              "title": "Ano Fim"
+            },
+            "description": "Padrão: último ano da base"
+          },
+          {
+            "name": "mes_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 1,
+              "title": "Mes Inicio"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "mes_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 12,
+              "title": "Mes Fim"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas",
+              "default": [],
+              "title": "Substancias"
+            },
+            "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas"
+          },
+          {
+            "name": "agrupar_substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Somar 'MINÉRIO DE X' com 'X'",
+              "default": true,
+              "title": "Agrupar Substancias"
+            },
+            "description": "Somar 'MINÉRIO DE X' com 'X'"
+          },
+          {
+            "name": "tipo_titular",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "Todos",
+                "PJ",
+                "PF"
+              ],
+              "type": "string",
+              "default": "Todos",
+              "title": "Tipo Titular"
+            }
+          },
+          {
+            "name": "municipios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12",
+              "default": [],
+              "title": "Municipios"
+            },
+            "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12"
+          },
+          {
+            "name": "denominador",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "com_registro",
+                "todos"
+              ],
+              "type": "string",
+              "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)",
+              "default": "com_registro",
+              "title": "Denominador"
+            },
+            "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)"
+          },
+          {
+            "name": "excluir_foco_das_medias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Tirar Canaã e Parauapebas das médias PA/BR",
+              "default": false,
+              "title": "Excluir Foco Das Medias"
+            },
+            "description": "Tirar Canaã e Parauapebas das médias PA/BR"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Itens em substâncias e titulares",
+              "default": 10,
+              "title": "Top N"
+            },
+            "description": "Itens em substâncias e titulares"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/evolucao-anual": {
+      "get": {
+        "tags": [
+          "visualizações"
+        ],
+        "summary": "Valor por ano: Parauapebas, Canaã e demais municípios da região",
+        "operationId": "evolucao_anual_api_v1_evolucao_anual_get",
+        "parameters": [
+          {
+            "name": "base",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "arrecadacao",
+                "autuacao"
+              ],
+              "type": "string",
+              "description": "Base de dados",
+              "default": "arrecadacao",
+              "title": "Base"
+            },
+            "description": "Base de dados"
+          },
+          {
+            "name": "ano_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: primeiro ano da base",
+              "title": "Ano Inicio"
+            },
+            "description": "Padrão: primeiro ano da base"
+          },
+          {
+            "name": "ano_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: último ano da base",
+              "title": "Ano Fim"
+            },
+            "description": "Padrão: último ano da base"
+          },
+          {
+            "name": "mes_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 1,
+              "title": "Mes Inicio"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "mes_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 12,
+              "title": "Mes Fim"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas",
+              "default": [],
+              "title": "Substancias"
+            },
+            "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas"
+          },
+          {
+            "name": "agrupar_substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Somar 'MINÉRIO DE X' com 'X'",
+              "default": true,
+              "title": "Agrupar Substancias"
+            },
+            "description": "Somar 'MINÉRIO DE X' com 'X'"
+          },
+          {
+            "name": "tipo_titular",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "Todos",
+                "PJ",
+                "PF"
+              ],
+              "type": "string",
+              "default": "Todos",
+              "title": "Tipo Titular"
+            }
+          },
+          {
+            "name": "municipios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12",
+              "default": [],
+              "title": "Municipios"
+            },
+            "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12"
+          },
+          {
+            "name": "denominador",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "com_registro",
+                "todos"
+              ],
+              "type": "string",
+              "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)",
+              "default": "com_registro",
+              "title": "Denominador"
+            },
+            "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)"
+          },
+          {
+            "name": "excluir_foco_das_medias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Tirar Canaã e Parauapebas das médias PA/BR",
+              "default": false,
+              "title": "Excluir Foco Das Medias"
+            },
+            "description": "Tirar Canaã e Parauapebas das médias PA/BR"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Itens em substâncias e titulares",
+              "default": 10,
+              "title": "Top N"
+            },
+            "description": "Itens em substâncias e titulares"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comparacao-medias": {
+      "get": {
+        "tags": [
+          "visualizações"
+        ],
+        "summary": "Parauapebas e Canaã × média por município do Pará e do Brasil (por ano e no período)",
+        "operationId": "comparacao_medias_api_v1_comparacao_medias_get",
+        "parameters": [
+          {
+            "name": "base",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "arrecadacao",
+                "autuacao"
+              ],
+              "type": "string",
+              "description": "Base de dados",
+              "default": "arrecadacao",
+              "title": "Base"
+            },
+            "description": "Base de dados"
+          },
+          {
+            "name": "ano_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: primeiro ano da base",
+              "title": "Ano Inicio"
+            },
+            "description": "Padrão: primeiro ano da base"
+          },
+          {
+            "name": "ano_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: último ano da base",
+              "title": "Ano Fim"
+            },
+            "description": "Padrão: último ano da base"
+          },
+          {
+            "name": "mes_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 1,
+              "title": "Mes Inicio"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "mes_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 12,
+              "title": "Mes Fim"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas",
+              "default": [],
+              "title": "Substancias"
+            },
+            "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas"
+          },
+          {
+            "name": "agrupar_substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Somar 'MINÉRIO DE X' com 'X'",
+              "default": true,
+              "title": "Agrupar Substancias"
+            },
+            "description": "Somar 'MINÉRIO DE X' com 'X'"
+          },
+          {
+            "name": "tipo_titular",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "Todos",
+                "PJ",
+                "PF"
+              ],
+              "type": "string",
+              "default": "Todos",
+              "title": "Tipo Titular"
+            }
+          },
+          {
+            "name": "municipios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12",
+              "default": [],
+              "title": "Municipios"
+            },
+            "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12"
+          },
+          {
+            "name": "denominador",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "com_registro",
+                "todos"
+              ],
+              "type": "string",
+              "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)",
+              "default": "com_registro",
+              "title": "Denominador"
+            },
+            "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)"
+          },
+          {
+            "name": "excluir_foco_das_medias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Tirar Canaã e Parauapebas das médias PA/BR",
+              "default": false,
+              "title": "Excluir Foco Das Medias"
+            },
+            "description": "Tirar Canaã e Parauapebas das médias PA/BR"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Itens em substâncias e titulares",
+              "default": 10,
+              "title": "Top N"
+            },
+            "description": "Itens em substâncias e titulares"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/participacao": {
+      "get": {
+        "tags": [
+          "visualizações"
+        ],
+        "summary": "Participação (%) de Parauapebas, Canaã e da soma no total da região, por ano",
+        "operationId": "participacao_api_v1_participacao_get",
+        "parameters": [
+          {
+            "name": "base",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "arrecadacao",
+                "autuacao"
+              ],
+              "type": "string",
+              "description": "Base de dados",
+              "default": "arrecadacao",
+              "title": "Base"
+            },
+            "description": "Base de dados"
+          },
+          {
+            "name": "ano_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: primeiro ano da base",
+              "title": "Ano Inicio"
+            },
+            "description": "Padrão: primeiro ano da base"
+          },
+          {
+            "name": "ano_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: último ano da base",
+              "title": "Ano Fim"
+            },
+            "description": "Padrão: último ano da base"
+          },
+          {
+            "name": "mes_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 1,
+              "title": "Mes Inicio"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "mes_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 12,
+              "title": "Mes Fim"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas",
+              "default": [],
+              "title": "Substancias"
+            },
+            "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas"
+          },
+          {
+            "name": "agrupar_substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Somar 'MINÉRIO DE X' com 'X'",
+              "default": true,
+              "title": "Agrupar Substancias"
+            },
+            "description": "Somar 'MINÉRIO DE X' com 'X'"
+          },
+          {
+            "name": "tipo_titular",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "Todos",
+                "PJ",
+                "PF"
+              ],
+              "type": "string",
+              "default": "Todos",
+              "title": "Tipo Titular"
+            }
+          },
+          {
+            "name": "municipios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12",
+              "default": [],
+              "title": "Municipios"
+            },
+            "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12"
+          },
+          {
+            "name": "denominador",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "com_registro",
+                "todos"
+              ],
+              "type": "string",
+              "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)",
+              "default": "com_registro",
+              "title": "Denominador"
+            },
+            "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)"
+          },
+          {
+            "name": "excluir_foco_das_medias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Tirar Canaã e Parauapebas das médias PA/BR",
+              "default": false,
+              "title": "Excluir Foco Das Medias"
+            },
+            "description": "Tirar Canaã e Parauapebas das médias PA/BR"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Itens em substâncias e titulares",
+              "default": 10,
+              "title": "Top N"
+            },
+            "description": "Itens em substâncias e titulares"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ranking": {
+      "get": {
+        "tags": [
+          "visualizações"
+        ],
+        "summary": "Ranking dos municípios da região + médias PA/BR do período",
+        "operationId": "ranking_api_v1_ranking_get",
+        "parameters": [
+          {
+            "name": "base",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "arrecadacao",
+                "autuacao"
+              ],
+              "type": "string",
+              "description": "Base de dados",
+              "default": "arrecadacao",
+              "title": "Base"
+            },
+            "description": "Base de dados"
+          },
+          {
+            "name": "ano_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: primeiro ano da base",
+              "title": "Ano Inicio"
+            },
+            "description": "Padrão: primeiro ano da base"
+          },
+          {
+            "name": "ano_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: último ano da base",
+              "title": "Ano Fim"
+            },
+            "description": "Padrão: último ano da base"
+          },
+          {
+            "name": "mes_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 1,
+              "title": "Mes Inicio"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "mes_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 12,
+              "title": "Mes Fim"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas",
+              "default": [],
+              "title": "Substancias"
+            },
+            "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas"
+          },
+          {
+            "name": "agrupar_substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Somar 'MINÉRIO DE X' com 'X'",
+              "default": true,
+              "title": "Agrupar Substancias"
+            },
+            "description": "Somar 'MINÉRIO DE X' com 'X'"
+          },
+          {
+            "name": "tipo_titular",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "Todos",
+                "PJ",
+                "PF"
+              ],
+              "type": "string",
+              "default": "Todos",
+              "title": "Tipo Titular"
+            }
+          },
+          {
+            "name": "municipios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12",
+              "default": [],
+              "title": "Municipios"
+            },
+            "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12"
+          },
+          {
+            "name": "denominador",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "com_registro",
+                "todos"
+              ],
+              "type": "string",
+              "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)",
+              "default": "com_registro",
+              "title": "Denominador"
+            },
+            "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)"
+          },
+          {
+            "name": "excluir_foco_das_medias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Tirar Canaã e Parauapebas das médias PA/BR",
+              "default": false,
+              "title": "Excluir Foco Das Medias"
+            },
+            "description": "Tirar Canaã e Parauapebas das médias PA/BR"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Itens em substâncias e titulares",
+              "default": 10,
+              "title": "Top N"
+            },
+            "description": "Itens em substâncias e titulares"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/serie-mensal": {
+      "get": {
+        "tags": [
+          "visualizações"
+        ],
+        "summary": "Série mensal (só arrecadação), com o mês a partir do qual os dados estão incompletos",
+        "operationId": "serie_mensal_api_v1_serie_mensal_get",
+        "parameters": [
+          {
+            "name": "base",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "arrecadacao",
+                "autuacao"
+              ],
+              "type": "string",
+              "description": "Base de dados",
+              "default": "arrecadacao",
+              "title": "Base"
+            },
+            "description": "Base de dados"
+          },
+          {
+            "name": "ano_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: primeiro ano da base",
+              "title": "Ano Inicio"
+            },
+            "description": "Padrão: primeiro ano da base"
+          },
+          {
+            "name": "ano_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: último ano da base",
+              "title": "Ano Fim"
+            },
+            "description": "Padrão: último ano da base"
+          },
+          {
+            "name": "mes_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 1,
+              "title": "Mes Inicio"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "mes_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 12,
+              "title": "Mes Fim"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas",
+              "default": [],
+              "title": "Substancias"
+            },
+            "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas"
+          },
+          {
+            "name": "agrupar_substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Somar 'MINÉRIO DE X' com 'X'",
+              "default": true,
+              "title": "Agrupar Substancias"
+            },
+            "description": "Somar 'MINÉRIO DE X' com 'X'"
+          },
+          {
+            "name": "tipo_titular",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "Todos",
+                "PJ",
+                "PF"
+              ],
+              "type": "string",
+              "default": "Todos",
+              "title": "Tipo Titular"
+            }
+          },
+          {
+            "name": "municipios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12",
+              "default": [],
+              "title": "Municipios"
+            },
+            "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12"
+          },
+          {
+            "name": "denominador",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "com_registro",
+                "todos"
+              ],
+              "type": "string",
+              "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)",
+              "default": "com_registro",
+              "title": "Denominador"
+            },
+            "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)"
+          },
+          {
+            "name": "excluir_foco_das_medias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Tirar Canaã e Parauapebas das médias PA/BR",
+              "default": false,
+              "title": "Excluir Foco Das Medias"
+            },
+            "description": "Tirar Canaã e Parauapebas das médias PA/BR"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Itens em substâncias e titulares",
+              "default": 10,
+              "title": "Top N"
+            },
+            "description": "Itens em substâncias e titulares"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/substancias": {
+      "get": {
+        "tags": [
+          "visualizações"
+        ],
+        "summary": "Top N substâncias por valor, separadas em Parauapebas, Canaã e demais",
+        "operationId": "substancias_api_v1_substancias_get",
+        "parameters": [
+          {
+            "name": "base",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "arrecadacao",
+                "autuacao"
+              ],
+              "type": "string",
+              "description": "Base de dados",
+              "default": "arrecadacao",
+              "title": "Base"
+            },
+            "description": "Base de dados"
+          },
+          {
+            "name": "ano_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: primeiro ano da base",
+              "title": "Ano Inicio"
+            },
+            "description": "Padrão: primeiro ano da base"
+          },
+          {
+            "name": "ano_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: último ano da base",
+              "title": "Ano Fim"
+            },
+            "description": "Padrão: último ano da base"
+          },
+          {
+            "name": "mes_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 1,
+              "title": "Mes Inicio"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "mes_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 12,
+              "title": "Mes Fim"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas",
+              "default": [],
+              "title": "Substancias"
+            },
+            "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas"
+          },
+          {
+            "name": "agrupar_substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Somar 'MINÉRIO DE X' com 'X'",
+              "default": true,
+              "title": "Agrupar Substancias"
+            },
+            "description": "Somar 'MINÉRIO DE X' com 'X'"
+          },
+          {
+            "name": "tipo_titular",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "Todos",
+                "PJ",
+                "PF"
+              ],
+              "type": "string",
+              "default": "Todos",
+              "title": "Tipo Titular"
+            }
+          },
+          {
+            "name": "municipios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12",
+              "default": [],
+              "title": "Municipios"
+            },
+            "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12"
+          },
+          {
+            "name": "denominador",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "com_registro",
+                "todos"
+              ],
+              "type": "string",
+              "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)",
+              "default": "com_registro",
+              "title": "Denominador"
+            },
+            "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)"
+          },
+          {
+            "name": "excluir_foco_das_medias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Tirar Canaã e Parauapebas das médias PA/BR",
+              "default": false,
+              "title": "Excluir Foco Das Medias"
+            },
+            "description": "Tirar Canaã e Parauapebas das médias PA/BR"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Itens em substâncias e titulares",
+              "default": 10,
+              "title": "Top N"
+            },
+            "description": "Itens em substâncias e titulares"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mapa-calor": {
+      "get": {
+        "tags": [
+          "visualizações"
+        ],
+        "summary": "Matriz município × ano",
+        "operationId": "mapa_calor_api_v1_mapa_calor_get",
+        "parameters": [
+          {
+            "name": "base",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "arrecadacao",
+                "autuacao"
+              ],
+              "type": "string",
+              "description": "Base de dados",
+              "default": "arrecadacao",
+              "title": "Base"
+            },
+            "description": "Base de dados"
+          },
+          {
+            "name": "ano_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: primeiro ano da base",
+              "title": "Ano Inicio"
+            },
+            "description": "Padrão: primeiro ano da base"
+          },
+          {
+            "name": "ano_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: último ano da base",
+              "title": "Ano Fim"
+            },
+            "description": "Padrão: último ano da base"
+          },
+          {
+            "name": "mes_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 1,
+              "title": "Mes Inicio"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "mes_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 12,
+              "title": "Mes Fim"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas",
+              "default": [],
+              "title": "Substancias"
+            },
+            "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas"
+          },
+          {
+            "name": "agrupar_substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Somar 'MINÉRIO DE X' com 'X'",
+              "default": true,
+              "title": "Agrupar Substancias"
+            },
+            "description": "Somar 'MINÉRIO DE X' com 'X'"
+          },
+          {
+            "name": "tipo_titular",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "Todos",
+                "PJ",
+                "PF"
+              ],
+              "type": "string",
+              "default": "Todos",
+              "title": "Tipo Titular"
+            }
+          },
+          {
+            "name": "municipios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12",
+              "default": [],
+              "title": "Municipios"
+            },
+            "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12"
+          },
+          {
+            "name": "denominador",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "com_registro",
+                "todos"
+              ],
+              "type": "string",
+              "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)",
+              "default": "com_registro",
+              "title": "Denominador"
+            },
+            "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)"
+          },
+          {
+            "name": "excluir_foco_das_medias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Tirar Canaã e Parauapebas das médias PA/BR",
+              "default": false,
+              "title": "Excluir Foco Das Medias"
+            },
+            "description": "Tirar Canaã e Parauapebas das médias PA/BR"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Itens em substâncias e titulares",
+              "default": 10,
+              "title": "Top N"
+            },
+            "description": "Itens em substâncias e titulares"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/titulares": {
+      "get": {
+        "tags": [
+          "visualizações"
+        ],
+        "summary": "Maiores titulares em Parauapebas e Canaã",
+        "operationId": "titulares_api_v1_titulares_get",
+        "parameters": [
+          {
+            "name": "base",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "arrecadacao",
+                "autuacao"
+              ],
+              "type": "string",
+              "description": "Base de dados",
+              "default": "arrecadacao",
+              "title": "Base"
+            },
+            "description": "Base de dados"
+          },
+          {
+            "name": "ano_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: primeiro ano da base",
+              "title": "Ano Inicio"
+            },
+            "description": "Padrão: primeiro ano da base"
+          },
+          {
+            "name": "ano_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: último ano da base",
+              "title": "Ano Fim"
+            },
+            "description": "Padrão: último ano da base"
+          },
+          {
+            "name": "mes_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 1,
+              "title": "Mes Inicio"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "mes_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 12,
+              "title": "Mes Fim"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas",
+              "default": [],
+              "title": "Substancias"
+            },
+            "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas"
+          },
+          {
+            "name": "agrupar_substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Somar 'MINÉRIO DE X' com 'X'",
+              "default": true,
+              "title": "Agrupar Substancias"
+            },
+            "description": "Somar 'MINÉRIO DE X' com 'X'"
+          },
+          {
+            "name": "tipo_titular",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "Todos",
+                "PJ",
+                "PF"
+              ],
+              "type": "string",
+              "default": "Todos",
+              "title": "Tipo Titular"
+            }
+          },
+          {
+            "name": "municipios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12",
+              "default": [],
+              "title": "Municipios"
+            },
+            "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12"
+          },
+          {
+            "name": "denominador",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "com_registro",
+                "todos"
+              ],
+              "type": "string",
+              "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)",
+              "default": "com_registro",
+              "title": "Denominador"
+            },
+            "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)"
+          },
+          {
+            "name": "excluir_foco_das_medias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Tirar Canaã e Parauapebas das médias PA/BR",
+              "default": false,
+              "title": "Excluir Foco Das Medias"
+            },
+            "description": "Tirar Canaã e Parauapebas das médias PA/BR"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Itens em substâncias e titulares",
+              "default": 10,
+              "title": "Top N"
+            },
+            "description": "Itens em substâncias e titulares"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tabela-resumo": {
+      "get": {
+        "tags": [
+          "visualizações"
+        ],
+        "summary": "Tabela município × ano + total da região + linhas de média PA/BR",
+        "operationId": "tabela_resumo_api_v1_tabela_resumo_get",
+        "parameters": [
+          {
+            "name": "base",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "arrecadacao",
+                "autuacao"
+              ],
+              "type": "string",
+              "description": "Base de dados",
+              "default": "arrecadacao",
+              "title": "Base"
+            },
+            "description": "Base de dados"
+          },
+          {
+            "name": "ano_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: primeiro ano da base",
+              "title": "Ano Inicio"
+            },
+            "description": "Padrão: primeiro ano da base"
+          },
+          {
+            "name": "ano_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: último ano da base",
+              "title": "Ano Fim"
+            },
+            "description": "Padrão: último ano da base"
+          },
+          {
+            "name": "mes_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 1,
+              "title": "Mes Inicio"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "mes_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 12,
+              "title": "Mes Fim"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas",
+              "default": [],
+              "title": "Substancias"
+            },
+            "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas"
+          },
+          {
+            "name": "agrupar_substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Somar 'MINÉRIO DE X' com 'X'",
+              "default": true,
+              "title": "Agrupar Substancias"
+            },
+            "description": "Somar 'MINÉRIO DE X' com 'X'"
+          },
+          {
+            "name": "tipo_titular",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "Todos",
+                "PJ",
+                "PF"
+              ],
+              "type": "string",
+              "default": "Todos",
+              "title": "Tipo Titular"
+            }
+          },
+          {
+            "name": "municipios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12",
+              "default": [],
+              "title": "Municipios"
+            },
+            "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12"
+          },
+          {
+            "name": "denominador",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "com_registro",
+                "todos"
+              ],
+              "type": "string",
+              "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)",
+              "default": "com_registro",
+              "title": "Denominador"
+            },
+            "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)"
+          },
+          {
+            "name": "excluir_foco_das_medias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Tirar Canaã e Parauapebas das médias PA/BR",
+              "default": false,
+              "title": "Excluir Foco Das Medias"
+            },
+            "description": "Tirar Canaã e Parauapebas das médias PA/BR"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Itens em substâncias e titulares",
+              "default": 10,
+              "title": "Top N"
+            },
+            "description": "Itens em substâncias e titulares"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/painel": {
+      "get": {
+        "tags": [
+          "visualizações"
+        ],
+        "summary": "Todas as visualizações numa chamada só",
+        "operationId": "painel_api_v1_painel_get",
+        "parameters": [
+          {
+            "name": "base",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "arrecadacao",
+                "autuacao"
+              ],
+              "type": "string",
+              "description": "Base de dados",
+              "default": "arrecadacao",
+              "title": "Base"
+            },
+            "description": "Base de dados"
+          },
+          {
+            "name": "ano_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: primeiro ano da base",
+              "title": "Ano Inicio"
+            },
+            "description": "Padrão: primeiro ano da base"
+          },
+          {
+            "name": "ano_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: último ano da base",
+              "title": "Ano Fim"
+            },
+            "description": "Padrão: último ano da base"
+          },
+          {
+            "name": "mes_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 1,
+              "title": "Mes Inicio"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "mes_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 12,
+              "title": "Mes Fim"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas",
+              "default": [],
+              "title": "Substancias"
+            },
+            "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas"
+          },
+          {
+            "name": "agrupar_substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Somar 'MINÉRIO DE X' com 'X'",
+              "default": true,
+              "title": "Agrupar Substancias"
+            },
+            "description": "Somar 'MINÉRIO DE X' com 'X'"
+          },
+          {
+            "name": "tipo_titular",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "Todos",
+                "PJ",
+                "PF"
+              ],
+              "type": "string",
+              "default": "Todos",
+              "title": "Tipo Titular"
+            }
+          },
+          {
+            "name": "municipios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12",
+              "default": [],
+              "title": "Municipios"
+            },
+            "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12"
+          },
+          {
+            "name": "denominador",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "com_registro",
+                "todos"
+              ],
+              "type": "string",
+              "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)",
+              "default": "com_registro",
+              "title": "Denominador"
+            },
+            "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)"
+          },
+          {
+            "name": "excluir_foco_das_medias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Tirar Canaã e Parauapebas das médias PA/BR",
+              "default": false,
+              "title": "Excluir Foco Das Medias"
+            },
+            "description": "Tirar Canaã e Parauapebas das médias PA/BR"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Itens em substâncias e titulares",
+              "default": 10,
+              "title": "Top N"
+            },
+            "description": "Itens em substâncias e titulares"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/exportar.csv": {
+      "get": {
+        "tags": [
+          "exportação"
+        ],
+        "summary": "Linhas filtradas da região em CSV (; e vírgula decimal)",
+        "operationId": "exportar_csv_api_v1_exportar_csv_get",
+        "parameters": [
+          {
+            "name": "base",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "arrecadacao",
+                "autuacao"
+              ],
+              "type": "string",
+              "description": "Base de dados",
+              "default": "arrecadacao",
+              "title": "Base"
+            },
+            "description": "Base de dados"
+          },
+          {
+            "name": "ano_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: primeiro ano da base",
+              "title": "Ano Inicio"
+            },
+            "description": "Padrão: primeiro ano da base"
+          },
+          {
+            "name": "ano_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 1990
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Padrão: último ano da base",
+              "title": "Ano Fim"
+            },
+            "description": "Padrão: último ano da base"
+          },
+          {
+            "name": "mes_inicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 1,
+              "title": "Mes Inicio"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "mes_fim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Só para arrecadação",
+              "default": 12,
+              "title": "Mes Fim"
+            },
+            "description": "Só para arrecadação"
+          },
+          {
+            "name": "substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas",
+              "default": [],
+              "title": "Substancias"
+            },
+            "description": "Repita o parâmetro para várias (?substancias=FERRO&substancias=COBRE). Vazio = todas"
+          },
+          {
+            "name": "agrupar_substancias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Somar 'MINÉRIO DE X' com 'X'",
+              "default": true,
+              "title": "Agrupar Substancias"
+            },
+            "description": "Somar 'MINÉRIO DE X' com 'X'"
+          },
+          {
+            "name": "tipo_titular",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "Todos",
+                "PJ",
+                "PF"
+              ],
+              "type": "string",
+              "default": "Todos",
+              "title": "Tipo Titular"
+            }
+          },
+          {
+            "name": "municipios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12",
+              "default": [],
+              "title": "Municipios"
+            },
+            "description": "Municípios da região na comparação (com ou sem acento). Vazio = os 12"
+          },
+          {
+            "name": "denominador",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "com_registro",
+                "todos"
+              ],
+              "type": "string",
+              "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)",
+              "default": "com_registro",
+              "title": "Denominador"
+            },
+            "description": "Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)"
+          },
+          {
+            "name": "excluir_foco_das_medias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Tirar Canaã e Parauapebas das médias PA/BR",
+              "default": false,
+              "title": "Excluir Foco Das Medias"
+            },
+            "description": "Tirar Canaã e Parauapebas das médias PA/BR"
+          },
+          {
+            "name": "top_n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Itens em substâncias e titulares",
+              "default": 10,
+              "title": "Top N"
+            },
+            "description": "Itens em substâncias e titulares"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

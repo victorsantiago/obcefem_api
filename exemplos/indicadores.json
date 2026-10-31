@@ -1,0 +1,86 @@
+{
+  "filtros": {
+    "base": "arrecadacao",
+    "ano_inicio": 2022,
+    "ano_fim": 2026,
+    "mes_inicio": 1,
+    "mes_fim": 12,
+    "substancias": [],
+    "agrupar_substancias": true,
+    "tipo_titular": "Todos",
+    "municipios": [
+      "Bom Jesus do Tocantins",
+      "Brejo Grande do Araguaia",
+      "Canaã dos Carajás",
+      "Curionópolis",
+      "Eldorado do Carajás",
+      "Marabá",
+      "Palestina do Pará",
+      "Parauapebas",
+      "Piçarra",
+      "São Domingos do Araguaia",
+      "São Geraldo do Araguaia",
+      "São João do Araguaia"
+    ],
+    "denominador": "com_registro",
+    "excluir_foco_das_medias": false,
+    "top_n": 10
+  },
+  "versao_dados": "fef79154beff",
+  "notas": [
+    "Valor recolhido pelas mineradoras referente à produção do município; não é o repasse à prefeitura (a cota do município produtor é 60%, Lei 13.540/2017).",
+    "2026 é parcial: o volume de registros só é completo até jun. Para comparar com outros anos use mes_fim=6.",
+    "Valores nominais (sem correção monetária)."
+  ],
+  "dados": {
+    "total_regiao": 12378886806.77,
+    "municipios_selecionados": 12,
+    "foco": [
+      {
+        "municipio": "Parauapebas",
+        "cor": "#2a78d6",
+        "valor": 5478602757.45,
+        "participacao_regiao_pct": 44.25763675659235
+      },
+      {
+        "municipio": "Canaã dos Carajás",
+        "cor": "#eb6834",
+        "valor": 5390963149.2,
+        "participacao_regiao_pct": 43.549660267122626
+      }
+    ],
+    "foco_soma": {
+      "nome": "Canaã + Parauapebas",
+      "valor": 10869565906.65,
+      "participacao_regiao_pct": 87.80729702371497
+    },
+    "medias": [
+      {
+        "escopo": "PA",
+        "nome": "Média dos municípios do Pará",
+        "cor": "#1baf7a",
+        "valor_medio": 159568237.99929413,
+        "total": 13563300229.94,
+        "municipios": 85,
+        "vezes": {
+          "Parauapebas": 34.333917740410435,
+          "Canaã dos Carajás": 33.78468808575706
+        }
+      },
+      {
+        "escopo": "BR",
+        "nome": "Média dos municípios do Brasil",
+        "cor": "#52514e",
+        "valor_medio": 10196948.54906622,
+        "total": 33415400395.29,
+        "municipios": 3277,
+        "vezes": {
+          "Parauapebas": 537.27865067552,
+          "Canaã dos Carajás": 528.6839610163253
+        }
+      }
+    ],
+    "descricao_media": "média = total ÷ municípios com registro no período",
+    "registros": 2534
+  }
+}

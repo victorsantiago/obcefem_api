@@ -1,0 +1,166 @@
+{
+  "filtros": {
+    "base": "arrecadacao",
+    "ano_inicio": 2022,
+    "ano_fim": 2026,
+    "mes_inicio": 1,
+    "mes_fim": 6,
+    "substancias": [
+      "FERRO"
+    ],
+    "agrupar_substancias": true,
+    "tipo_titular": "Todos",
+    "municipios": [
+      "Bom Jesus do Tocantins",
+      "Brejo Grande do Araguaia",
+      "Canaã dos Carajás",
+      "Curionópolis",
+      "Eldorado do Carajás",
+      "Marabá",
+      "Palestina do Pará",
+      "Parauapebas",
+      "Piçarra",
+      "São Domingos do Araguaia",
+      "São Geraldo do Araguaia",
+      "São João do Araguaia"
+    ],
+    "denominador": "com_registro",
+    "excluir_foco_das_medias": false,
+    "top_n": 10
+  },
+  "versao_dados": "fef79154beff",
+  "notas": [
+    "Valor recolhido pelas mineradoras referente à produção do município; não é o repasse à prefeitura (a cota do município produtor é 60%, Lei 13.540/2017).",
+    "Valores nominais (sem correção monetária)."
+  ],
+  "dados": {
+    "itens": [
+      {
+        "posicao": 1,
+        "municipio": "Canaã dos Carajás",
+        "valor": 2797044332.99,
+        "participacao_pct": 49.09876681509938,
+        "foco": true,
+        "sem_registros": false,
+        "cor": "#eb6834"
+      },
+      {
+        "posicao": 2,
+        "municipio": "Parauapebas",
+        "valor": 2716874511.68,
+        "participacao_pct": 47.69148151908833,
+        "foco": true,
+        "sem_registros": false,
+        "cor": "#2a78d6"
+      },
+      {
+        "posicao": 3,
+        "municipio": "Curionópolis",
+        "valor": 182852203.62,
+        "participacao_pct": 3.2097516658122807,
+        "foco": false,
+        "sem_registros": false,
+        "cor": "#c9c8c2"
+      },
+      {
+        "posicao": 4,
+        "municipio": "Brejo Grande do Araguaia",
+        "valor": 0.0,
+        "participacao_pct": 0.0,
+        "foco": false,
+        "sem_registros": true,
+        "cor": "#c9c8c2"
+      },
+      {
+        "posicao": 5,
+        "municipio": "Bom Jesus do Tocantins",
+        "valor": 0.0,
+        "participacao_pct": 0.0,
+        "foco": false,
+        "sem_registros": true,
+        "cor": "#c9c8c2"
+      },
+      {
+        "posicao": 6,
+        "municipio": "Eldorado do Carajás",
+        "valor": 0.0,
+        "participacao_pct": 0.0,
+        "foco": false,
+        "sem_registros": true,
+        "cor": "#c9c8c2"
+      },
+      {
+        "posicao": 7,
+        "municipio": "Marabá",
+        "valor": 0.0,
+        "participacao_pct": 0.0,
+        "foco": false,
+        "sem_registros": true,
+        "cor": "#c9c8c2"
+      },
+      {
+        "posicao": 8,
+        "municipio": "Palestina do Pará",
+        "valor": 0.0,
+        "participacao_pct": 0.0,
+        "foco": false,
+        "sem_registros": true,
+        "cor": "#c9c8c2"
+      },
+      {
+        "posicao": 9,
+        "municipio": "Piçarra",
+        "valor": 0.0,
+        "participacao_pct": 0.0,
+        "foco": false,
+        "sem_registros": true,
+        "cor": "#c9c8c2"
+      },
+      {
+        "posicao": 10,
+        "municipio": "São Domingos do Araguaia",
+        "valor": 0.0,
+        "participacao_pct": 0.0,
+        "foco": false,
+        "sem_registros": true,
+        "cor": "#c9c8c2"
+      },
+      {
+        "posicao": 11,
+        "municipio": "São Geraldo do Araguaia",
+        "valor": 0.0,
+        "participacao_pct": 0.0,
+        "foco": false,
+        "sem_registros": true,
+        "cor": "#c9c8c2"
+      },
+      {
+        "posicao": 12,
+        "municipio": "São João do Araguaia",
+        "valor": 0.0,
+        "participacao_pct": 0.0,
+        "foco": false,
+        "sem_registros": true,
+        "cor": "#c9c8c2"
+      }
+    ],
+    "total": 5696771048.29,
+    "medias_periodo": [
+      {
+        "escopo": "PA",
+        "nome": "Média dos municípios do Pará",
+        "cor": "#1baf7a",
+        "valor_medio": 1141020674.3560002,
+        "municipios": 5
+      },
+      {
+        "escopo": "BR",
+        "nome": "Média dos municípios do Brasil",
+        "cor": "#52514e",
+        "valor_medio": 160968809.91271606,
+        "municipios": 81
+      }
+    ],
+    "descricao_media": "média = total ÷ municípios com registro no período"
+  }
+}

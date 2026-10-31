@@ -1,0 +1,189 @@
+{
+  "versao_dados": "fef79154beff",
+  "carregado_em": "2026-10-31T14:34:47+00:00",
+  "bases": {
+    "arrecadacao": {
+      "descricao": "Arrecadação da CFEM (valor recolhido pelas mineradoras)",
+      "ano_min": 2022,
+      "ano_max": 2026,
+      "tem_mes": true,
+      "substancias_agrupadas": [
+        "FERRO",
+        "COBRE",
+        "MANGANÊS",
+        "NÍQUEL",
+        "GRANITO",
+        "CALCÁRIO",
+        "AREIA",
+        "CASCALHO",
+        "GNAISSE",
+        "ARGILA",
+        "OURO",
+        "GRANITO P/ BRITA",
+        "ÁGUA MINERAL",
+        "SAIBRO",
+        "AMETISTA",
+        "QUARTZO",
+        "QUARTZITO",
+        "SEIXOS"
+      ],
+      "substancias_originais": [
+        "FERRO",
+        "COBRE",
+        "MINÉRIO DE COBRE",
+        "MINÉRIO DE FERRO",
+        "MINÉRIO DE NÍQUEL",
+        "MANGANÊS",
+        "MINÉRIO DE MANGANÊS",
+        "GRANITO",
+        "CALCÁRIO",
+        "AREIA",
+        "CASCALHO",
+        "GNAISSE",
+        "ARGILA",
+        "MINÉRIO DE OURO",
+        "GRANITO P/ BRITA",
+        "ÁGUA MINERAL",
+        "SAIBRO",
+        "AMETISTA",
+        "QUARTZO",
+        "QUARTZITO",
+        "SEIXOS"
+      ],
+      "registros_regiao": 2534,
+      "municipios_sem_registro": [
+        "São Domingos do Araguaia"
+      ]
+    },
+    "autuacao": {
+      "descricao": "Autuações de CFEM (valor inicial dos autos de cobrança)",
+      "ano_min": 2006,
+      "ano_max": 2026,
+      "tem_mes": false,
+      "substancias_agrupadas": [
+        "FERRO",
+        "COBRE",
+        "MANGANÊS",
+        "NÍQUEL",
+        "OURO",
+        "QUARTZO",
+        "GRANITO P/ BRITA",
+        "AREIA",
+        "ARGILA",
+        "CASCALHO",
+        "SILÍCIO",
+        "CALCÁRIO",
+        "GNAISSE",
+        "GRANITO",
+        "SEIXOS",
+        "CALCÁRIO DOLOMÍTICO",
+        "ÁGUA MINERAL",
+        "SAIBRO",
+        "QUARTZITO",
+        "ARGILA P/CER. VERMELH",
+        "ARGILA VERMELHA"
+      ],
+      "substancias_originais": [
+        "FERRO",
+        "MINÉRIO DE COBRE",
+        "MANGANÊS",
+        "COBRE",
+        "MINÉRIO DE NÍQUEL",
+        "OURO",
+        "QUARTZO",
+        "GRANITO P/ BRITA",
+        "AREIA",
+        "ARGILA",
+        "CASCALHO",
+        "MINÉRIO DE SILÍCIO",
+        "CALCÁRIO",
+        "GNAISSE",
+        "GRANITO",
+        "SEIXOS",
+        "CALCÁRIO DOLOMÍTICO",
+        "ÁGUA MINERAL",
+        "SAIBRO",
+        "MINÉRIO DE OURO",
+        "QUARTZITO",
+        "ARGILA P/CER. VERMELH",
+        "ARGILA VERMELHA"
+      ],
+      "registros_regiao": 176,
+      "municipios_sem_registro": [
+        "Bom Jesus do Tocantins",
+        "Piçarra",
+        "São Domingos do Araguaia"
+      ]
+    }
+  },
+  "regiao_carajas": [
+    "Bom Jesus do Tocantins",
+    "Brejo Grande do Araguaia",
+    "Canaã dos Carajás",
+    "Curionópolis",
+    "Eldorado do Carajás",
+    "Marabá",
+    "Palestina do Pará",
+    "Parauapebas",
+    "Piçarra",
+    "São Domingos do Araguaia",
+    "São Geraldo do Araguaia",
+    "São João do Araguaia"
+  ],
+  "foco": [
+    "Parauapebas",
+    "Canaã dos Carajás"
+  ],
+  "cores": {
+    "Parauapebas": "#2a78d6",
+    "Canaã dos Carajás": "#eb6834",
+    "Demais municípios da região": "#a3a29c",
+    "Canaã + Parauapebas": "#3d3c39",
+    "Média dos municípios do Pará": "#1baf7a",
+    "Média dos municípios do Brasil": "#52514e",
+    "contexto": "#c9c8c2"
+  },
+  "cobertura_arrecadacao": {
+    "ultimo_ano": 2026,
+    "ultimo_mes_com_registro": 10,
+    "ultimo_mes_completo": 6,
+    "ano_parcial": true,
+    "registros_por_mes_ultimo_ano": {
+      "1": 52410,
+      "2": 50254,
+      "3": 40388,
+      "4": 10283,
+      "5": 9993,
+      "6": 10488,
+      "7": 1836,
+      "8": 373,
+      "9": 260,
+      "10": 137
+    },
+    "mediana_registros_mes_anos_anteriores": 10849.0
+  },
+  "n_municipios_ibge": {
+    "PA": 144,
+    "BR": 5570
+  },
+  "fontes": [
+    {
+      "nome": "CFEM_Arrecadacao_2022_2026.csv",
+      "origem": "local",
+      "url": null,
+      "tamanho_bytes": 99709196,
+      "last_modified": "2026-10-31T14:33:05+00:00",
+      "etag": null,
+      "baixado_em": null
+    },
+    {
+      "nome": "CFEM_Autuacao.csv",
+      "origem": "local",
+      "url": null,
+      "tamanho_bytes": 3031510,
+      "last_modified": "2026-10-31T14:33:05+00:00",
+      "etag": null,
+      "baixado_em": null
+    }
+  ]
+}

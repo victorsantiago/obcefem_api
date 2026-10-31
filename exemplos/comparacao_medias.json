@@ -1,0 +1,204 @@
+{
+  "filtros": {
+    "base": "arrecadacao",
+    "ano_inicio": 2022,
+    "ano_fim": 2026,
+    "mes_inicio": 1,
+    "mes_fim": 12,
+    "substancias": [],
+    "agrupar_substancias": true,
+    "tipo_titular": "Todos",
+    "municipios": [
+      "Bom Jesus do Tocantins",
+      "Brejo Grande do Araguaia",
+      "Canaã dos Carajás",
+      "Curionópolis",
+      "Eldorado do Carajás",
+      "Marabá",
+      "Palestina do Pará",
+      "Parauapebas",
+      "Piçarra",
+      "São Domingos do Araguaia",
+      "São Geraldo do Araguaia",
+      "São João do Araguaia"
+    ],
+    "denominador": "com_registro",
+    "excluir_foco_das_medias": false,
+    "top_n": 10
+  },
+  "versao_dados": "fef79154beff",
+  "notas": [
+    "Valor recolhido pelas mineradoras referente à produção do município; não é o repasse à prefeitura (a cota do município produtor é 60%, Lei 13.540/2017).",
+    "2026 é parcial: o volume de registros só é completo até jun. Para comparar com outros anos use mes_fim=6.",
+    "Valores nominais (sem correção monetária)."
+  ],
+  "dados": {
+    "anos": [
+      {
+        "ano": 2022,
+        "rotulo": "2022",
+        "parcial": false
+      },
+      {
+        "ano": 2023,
+        "rotulo": "2023",
+        "parcial": false
+      },
+      {
+        "ano": 2024,
+        "rotulo": "2024",
+        "parcial": false
+      },
+      {
+        "ano": 2025,
+        "rotulo": "2025",
+        "parcial": false
+      },
+      {
+        "ano": 2026,
+        "rotulo": "2026 (parcial)",
+        "parcial": true
+      }
+    ],
+    "descricao_media": "média = total ÷ municípios com registro no período",
+    "municipios": [
+      {
+        "nome": "Parauapebas",
+        "cor": "#2a78d6",
+        "valores": [
+          1385101594.96,
+          1192851160.39,
+          1412922211.23,
+          1102944678.86,
+          384783112.01
+        ],
+        "vezes_media_pa": [
+          34.54495389145842,
+          31.369252066471287,
+          30.94659228896405,
+          26.049888586806393,
+          17.55119228058366
+        ],
+        "vezes_media_br": [
+          547.0862315757546,
+          482.6975190905705,
+          512.5158581972544,
+          397.50503049331763,
+          269.41535766506695
+        ]
+      },
+      {
+        "nome": "Canaã dos Carajás",
+        "cor": "#eb6834",
+        "valores": [
+          1060669068.24,
+          1043511662.0,
+          1378188860.46,
+          1248202989.59,
+          660390568.91
+        ],
+        "vezes_media_pa": [
+          26.453484848889445,
+          27.441965474450324,
+          30.185843511313337,
+          29.480670640839506,
+          30.12253265138678
+        ],
+        "vezes_media_br": [
+          418.9421524051788,
+          422.2660019249964,
+          499.91686800765575,
+          449.85662195828326,
+          462.3886957827318
+        ]
+      }
+    ],
+    "medias": [
+      {
+        "escopo": "PA",
+        "nome": "Média dos municípios do Pará",
+        "cor": "#1baf7a",
+        "valor_medio": [
+          40095627.260410964,
+          38026126.91760564,
+          45656794.71383562,
+          42339708.10219178,
+          21923474.24942029
+        ],
+        "total": [
+          2926980790.01,
+          2699855011.15,
+          3332946014.11,
+          3090798691.46,
+          1512719723.21
+        ],
+        "municipios": [
+          73,
+          71,
+          73,
+          73,
+          69
+        ]
+      },
+      {
+        "escopo": "BR",
+        "nome": "Média dos municípios do Brasil",
+        "cor": "#52514e",
+        "valor_medio": [
+          2531779.297334055,
+          2471218.7513153153,
+          2756836.083472371,
+          2774668.480273588,
+          1428215.2114296188
+        ],
+        "total": [
+          7018092212.21,
+          6857632034.9,
+          7732925214.14,
+          7910579837.26,
+          3896171096.78
+        ],
+        "municipios": [
+          2772,
+          2775,
+          2805,
+          2851,
+          2728
+        ]
+      }
+    ],
+    "periodo": {
+      "rotulo": "2022–2026",
+      "municipios": [
+        {
+          "nome": "Parauapebas",
+          "valor": 5478602757.450001,
+          "vezes_media_pa": 34.33391774041044,
+          "vezes_media_br": 537.2786506755201
+        },
+        {
+          "nome": "Canaã dos Carajás",
+          "valor": 5390963149.2,
+          "vezes_media_pa": 33.78468808575706,
+          "vezes_media_br": 528.6839610163253
+        }
+      ],
+      "medias": [
+        {
+          "escopo": "PA",
+          "nome": "Média dos municípios do Pará",
+          "valor_medio": 159568237.99929413,
+          "total": 13563300229.94,
+          "municipios": 85
+        },
+        {
+          "escopo": "BR",
+          "nome": "Média dos municípios do Brasil",
+          "valor_medio": 10196948.54906622,
+          "total": 33415400395.29,
+          "municipios": 3277
+        }
+      ]
+    }
+  }
+}
