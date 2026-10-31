@@ -77,13 +77,17 @@ const form = () => $("#filtros");
 function lerFiltros() {
   const f = form();
   const marcados = (id) => $$(`#${id} input:checked`).map((i) => i.value);
+  // Substâncias: todas marcadas = sem filtro (lista vazia para a API); nenhuma marcada = esperar o usuário escolher
+  const subst = marcados("lista-substancias");
+  const totalSubst = $$("#lista-substancias input").length;
   return {
     base: f.base.value,
     ano_inicio: f.ano_inicio.value,
     ano_fim: f.ano_fim.value,
     mes_inicio: f.mes_inicio.value,
     mes_fim: f.mes_fim.value,
-    substancias: marcados("lista-substancias"),
+    substancias: subst.length === totalSubst ? [] : subst,
+    semSubstancia: totalSubst > 0 && subst.length === 0,
     agrupar_substancias: f.agrupar_substancias.checked,
     tipo_titular: f.tipo_titular.value,
     municipios: marcados("lista-municipios"),
@@ -97,7 +101,7 @@ function lerFiltros() {
 function paramsAPI(fl) {
   const p = new URLSearchParams();
   for (const [k, v] of Object.entries(fl)) {
-    if (k === "escala") continue;
+    if (k === "escala" || k === "semSubstancia") continue;
     if (CAMPOS_LISTA.includes(k)) {
       if (k === "municipios" && v.length === estado.meta.regiao_carajas.length) continue;
       v.forEach((x) => p.append(k, x));
@@ -127,22 +131,43 @@ function opcoes(select, itens, valor) {
   if (valor !== undefined && itens.some(([v]) => String(v) === String(valor))) select.value = valor;
 }
 
-function montarSubstancias(selecionadas = []) {
+// selecionadas vazio ou ausente = todas marcadas (padrão)
+function montarSubstancias(selecionadas) {
   const f = form();
   const b = estado.meta.bases[f.base.value];
   const lista = f.agrupar_substancias.checked ? b.substancias_agrupadas : b.substancias_originais;
-  const sel = new Set(selecionadas.map((s) => s.toUpperCase()));
+  const todas = !selecionadas || selecionadas.length === 0;
+  const sel = new Set((selecionadas || []).map((s) => s.toUpperCase()));
   $("#lista-substancias").innerHTML = lista.map((s) =>
-    `<label class="marcar" data-busca="${esc(s.toLowerCase())}"><input type="checkbox" value="${esc(s)}" ${sel.has(s.toUpperCase()) ? "checked" : ""}> ${esc(frase(s))}</label>`).join("");
+    `<label class="marcar" data-busca="${esc(s.toLowerCase())}"><input type="checkbox" value="${esc(s)}" ${todas || sel.has(s.toUpperCase()) ? "checked" : ""}> ${esc(frase(s))}</label>`).join("")
+    + '<p class="sem-resultado" hidden>Nenhuma substância com esse nome.</p>';
   filtrarListaSubstancias();
 }
 
+const semAcento = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
 function filtrarListaSubstancias() {
-  const termo = $("#busca-substancia").value.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const termo = semAcento($("#busca-substancia").value.trim().toLowerCase());
+  let visiveis = 0;
   $$("#lista-substancias label").forEach((l) => {
-    const alvo = l.dataset.busca.normalize("NFD").replace(/[̀-ͯ]/g, "");
-    l.hidden = termo && !alvo.includes(termo);
+    l.hidden = Boolean(termo) && !semAcento(l.dataset.busca).includes(termo);
+    if (!l.hidden) visiveis += 1;
   });
+  const aviso = $("#lista-substancias .sem-resultado");
+  if (aviso) aviso.hidden = visiveis > 0;
+}
+
+// Enter na busca: se só sobrou uma substância na lista, marca ela
+function enterNaBusca(e) {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  const visiveis = $$("#lista-substancias label").filter((l) => !l.hidden);
+  if (visiveis.length !== 1) return;
+  const caixa = $("input", visiveis[0]);
+  if (!caixa.checked) {
+    caixa.checked = true;
+    caixa.dispatchEvent(new Event("change", { bubbles: true }));
+  }
 }
 
 function montarMunicipios(selecionados) {
@@ -180,7 +205,7 @@ function aplicarNoFormulario(p) {
   montarPeriodo({ ano_inicio: p.get("ano_inicio") ?? undefined, ano_fim: p.get("ano_fim") ?? undefined,
     mes_inicio: p.get("mes_inicio") ?? undefined, mes_fim: p.get("mes_fim") ?? undefined });
   f.agrupar_substancias.checked = p.get("agrupar_substancias") !== "false";
-  montarSubstancias(p.getAll("substancias"));
+  montarSubstancias(p.getAll("substancias"));   // sem o parâmetro na URL = todas marcadas
   montarMunicipios(p.getAll("municipios"));
   if (p.get("tipo_titular")) f.tipo_titular.value = p.get("tipo_titular");
   f.denominador.value = p.get("denominador") === "todos" ? "todos" : "com_registro";
@@ -191,7 +216,10 @@ function aplicarNoFormulario(p) {
 
 function atualizarResumos(fl) {
   const ns = fl.substancias.length;
-  $("#resumo-substancias").textContent = ns === 0 ? "Todas" : ns === 1 ? frase(fl.substancias[0]) : `${ns} selecionadas`;
+  const totalSubst = $$("#lista-substancias input").length;
+  $("#resumo-substancias").textContent = fl.semSubstancia ? "Nenhuma marcada"
+    : ns === 0 ? `Todas (${totalSubst})` : ns === 1 ? frase(fl.substancias[0]) : `${ns} de ${totalSubst}`;
+  $("#dica-substancias").hidden = !fl.semSubstancia;
   const nm = fl.municipios.length, total = estado.meta.regiao_carajas.length;
   $("#resumo-municipios").textContent = nm === 0 || nm === total ? `Os ${total} municípios` : `${nm} de ${total}`;
   const base = fl.base === "arrecadacao" ? "Arrecadação" : "Autuações";
@@ -231,8 +259,14 @@ function agendarCarga() {
 
 function carregarTudo() {
   const fl = lerFiltros();
+  if (fl.semSubstancia) {               // aguardando o usuário marcar ao menos uma substância
+    if (estado.controlador) estado.controlador.abort();
+    atualizarResumos(fl);
+    return;
+  }
   const qs = paramsAPI(fl).toString();
-  history.replaceState(null, "", `${location.pathname}?${paramsURL(fl)}`);
+  const qsURL = paramsURL(fl).toString();
+  history.replaceState(null, "", qsURL ? `${location.pathname}?${qsURL}` : location.pathname);
   $("#link-csv").href = `${API}/exportar.csv?${qs}`;
   $("#link-json").href = `${API}/painel?${qs}`;
   atualizarResumos(fl);
@@ -673,7 +707,7 @@ function ligarEventos() {
       montarSubstancias(atual.substancias);
       montarMunicipios(atual.municipios);
     } else if (alvo.name === "agrupar_substancias") {
-      montarSubstancias([]);
+      montarSubstancias(null);
     } else if (alvo.name === "ano_inicio" && Number(f.ano_inicio.value) > Number(f.ano_fim.value)) {
       f.ano_fim.value = f.ano_inicio.value;
     } else if (alvo.name === "ano_fim" && Number(f.ano_fim.value) < Number(f.ano_inicio.value)) {
@@ -686,11 +720,22 @@ function ligarEventos() {
     agendarCarga();
   });
   $("#busca-substancia").addEventListener("input", filtrarListaSubstancias);
+  $("#busca-substancia").addEventListener("keydown", enterNaBusca);
 
   document.addEventListener("click", (e) => {
     const acao = e.target.closest("[data-acao]")?.dataset.acao;
     if (!acao) return;
-    if (acao === "todas-substancias") { $$("#lista-substancias input").forEach((i) => (i.checked = false)); agendarCarga(); }
+    if (acao === "limpar-substancias") {
+      $$("#lista-substancias input").forEach((i) => (i.checked = false));
+      atualizarResumos(lerFiltros());
+      $("#busca-substancia").focus();
+    }
+    if (acao === "marcar-substancias") {
+      $("#busca-substancia").value = "";
+      filtrarListaSubstancias();
+      $$("#lista-substancias input").forEach((i) => (i.checked = true));
+      agendarCarga();
+    }
     if (acao === "todos-municipios") { $$("#lista-municipios input").forEach((i) => (i.checked = true)); agendarCarga(); }
     if (acao === "meses-completos") {
       f.mes_inicio.value = "1"; f.mes_fim.value = String(Math.max(estado.meta.cobertura_arrecadacao.ultimo_mes_completo, 1)); agendarCarga();

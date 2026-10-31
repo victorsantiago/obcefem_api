@@ -3,13 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CFEM Carajás</title>
+  <title>Observatório da CFEM</title>
   <meta name="description" content="Arrecadação e autuações da CFEM em Parauapebas e Canaã dos Carajás comparadas à região de Carajás e às médias do Pará e do Brasil.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="estilo.css">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M4 26 13 8l5 9 3-5 7 14z' fill='%232a78d6'/%3E%3Cpath d='m13 8 5 9-4 9H4z' fill='%23eb6834'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
   <script src="vendor/plotly.min.js" defer></script>
   <script src="app.js" defer></script>
 </head>
@@ -20,10 +21,9 @@
     <!-- ============================== Filtros ============================== -->
     <aside class="lateral" id="lateral" aria-label="Filtros">
       <div class="marca">
-        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 26 13 8l5 9 3-5 7 14z" fill="var(--c-parauapebas)"/><path d="m13 8 5 9-4 9H4z" fill="var(--c-canaa)"/></svg>
-        <div>
-          <strong>CFEM Carajás</strong>
-          <span>Dados abertos da ANM</span>
+        <div class="logo">
+          <img src="img/logo-observatorio-cfem.png" width="640" height="235" alt="Observatório da CFEM">
+          <span>A partir dos dados da ANM</span>
         </div>
         <button class="fechar-lateral" type="button" aria-label="Fechar filtros" data-acao="fechar-filtros">×</button>
       </div>
@@ -56,12 +56,16 @@
 
         <fieldset>
           <legend>Substâncias</legend>
-          <input type="search" id="busca-substancia" placeholder="Buscar substância" aria-label="Buscar substância">
+          <input type="search" id="busca-substancia" placeholder="Digite para encontrar, ex.: argila" aria-label="Buscar substância" aria-describedby="dica-substancias">
           <div class="lista-marcar" id="lista-substancias" role="group" aria-label="Substâncias"></div>
           <div class="linha-acoes">
             <span id="resumo-substancias">Todas</span>
-            <button type="button" class="botao-texto" data-acao="todas-substancias">Limpar seleção</button>
+            <span class="botoes">
+              <button type="button" class="botao-texto" data-acao="marcar-substancias">Marcar todas</button>
+              <button type="button" class="botao-texto" data-acao="limpar-substancias">Limpar seleção</button>
+            </span>
           </div>
+          <p class="dica alerta-dica" id="dica-substancias" hidden>Marque ao menos uma substância. Digite o nome acima para encontrá-la na lista.</p>
           <label class="marcar"><input type="checkbox" name="agrupar_substancias" checked> Somar “minério de X” com “X”</label>
         </fieldset>
 
