@@ -1,0 +1,51 @@
+{
+  "versao": "77245e386179",
+  "gerado_em": "2026-10-31T19:49:18+00:00",
+  "bases": [
+    "arrecadacao",
+    "autuacao"
+  ],
+  "cobertura": {
+    "ultimo_ano": 2026,
+    "ultimo_mes_com_registro": 10,
+    "ultimo_mes_completo": 6,
+    "ano_parcial": true,
+    "registros_por_mes_ultimo_ano": {
+      "1": 52410,
+      "2": 50254,
+      "3": 40388,
+      "4": 10283,
+      "5": 9993,
+      "6": 10488,
+      "7": 1836,
+      "8": 373,
+      "9": 260,
+      "10": 137
+    },
+    "mediana_registros_mes_anos_anteriores": 10849.0
+  },
+  "fontes": [
+    {
+      "nome": "CFEM_Arrecadacao_2022_2026.csv",
+      "origem": "local",
+      "url": null,
+      "tamanho_bytes": 99709196,
+      "sha256": "acec5fed9d57595fd91711fb2ca615913ec76de45acb94bb526d414584de8099",
+      "last_modified": "2026-10-31T14:33:05+00:00",
+      "etag": null,
+      "baixado_em": null,
+      "conteudo_mudou": null
+    },
+    {
+      "nome": "CFEM_Autuacao.csv",
+      "origem": "local",
+      "url": null,
+      "tamanho_bytes": 3031510,
+      "sha256": "269e784f528ceaa98350e654833a33fbf31e3ce156c4a4084c02fde5a24b9ea0",
+      "last_modified": "2026-10-31T14:33:05+00:00",
+      "etag": null,
+      "baixado_em": null,
+      "conteudo_mudou": null
+    }
+  ]
+}

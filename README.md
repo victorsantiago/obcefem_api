@@ -41,7 +41,30 @@ docker build -t cfem-api .
 docker run -p 8000:8000 -v cfem_dados:/data --env-file .env cfem-api
 ```
 
-## Atualização diária
+## Hospedagem na Vercel (modo pré-processado)
+
+A Vercel roda a API como função serverless: o disco é somente leitura (só `/tmp` aceita gravação), cada instância começa do zero e não há processo contínuo para baixar e processar 100 MB da ANM nem para agendar a atualização. Por isso a API tem dois modos (`CFEM_MODO`):
+
+| Modo | Onde usar | Como os dados chegam |
+|---|---|---|
+| `servidor` | VM, Docker, Render, Railway, servidor da universidade | A própria API baixa, processa e se atualiza todo dia às 07:30 |
+| `pre_processado` | **Vercel** (escolhido sozinho quando existe a variável `VERCEL`) | A API só lê `dados_processados/` (2,3 MB de parquet). Carrega em menos de 1 s, sem rede e sem gravar em disco |
+
+Como funciona na Vercel:
+
+1. `scripts/gerar_dados.py` baixa os CSVs da ANM, processa e grava `dados_processados/`. O zip já traz essa pasta gerada com os dados de 30/10/2026, então o primeiro deploy funciona de imediato.
+2. O workflow `.github/workflows/atualizar-dados.yml` roda esse script **todo dia às 07:45 (Belém)** no GitHub Actions. Se a ANM publicou algo novo, ele faz commit de `dados_processados/`.
+3. O commit dispara um novo deploy na Vercel (integração com o GitHub). A API passa a servir os dados novos.
+
+Para colocar no ar:
+
+- Envie o projeto inteiro para o repositório do GitHub ligado à Vercel, **incluindo `dados_processados/`, `pyproject.toml` e `.github/`**.
+- No GitHub: *Settings → Actions → General → Workflow permissions*: marque **Read and write permissions**, para o workflow poder fazer o commit.
+- Para atualizar na hora: aba *Actions* → *Atualizar dados da ANM* → *Run workflow*. O botão "Atualizar agora" do painel não funciona neste modo e explica isso.
+- O `pyproject.toml` diz à Vercel onde está a aplicação (`app.main:app`) e manda servir o painel pela CDN. Sem isso, o `plotly.min.js` (4,8 MB) passaria pela função, que tem limite de 4,5 MB por resposta.
+- Se o GitHub Actions não conseguir baixar do portal da ANM (alguns sites do governo bloqueiam acessos de fora do Brasil), rode `python scripts/gerar_dados.py` no seu computador e faça o commit de `dados_processados/`. O resultado é o mesmo.
+
+## Atualização diária (modo servidor)
 
 A ANM regrava **todos** os arquivos de `/CFEM/` todo dia por volta das 6h (horário de Brasília), inclusive os de períodos encerrados. A data de modificação muda todo dia, mesmo quando o conteúdo é igual. A API lida com isso assim:
 

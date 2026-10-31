@@ -1,0 +1,23 @@
+[project]
+name = "cfem-carajas-api"
+version = "1.2.0"
+description = "API e painel da CFEM — Canaã dos Carajás e Parauapebas × Região de Carajás"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "pandas>=2.1",
+    "numpy>=1.26",
+    "pyarrow>=15",
+    "httpx>=0.27",
+    "tzdata",
+]
+
+# ---------------------------------------------------------------- Vercel
+[tool.vercel]
+entrypoint = "app.main:app"
+
+# Serve o painel (front/, montado em "/") pela CDN da Vercel, mesmo com os middlewares de CORS e GZip.
+# Sem isso, os arquivos passariam pela função, e o plotly.min.js (4,8 MB) excede o limite de 4,5 MB por resposta.
+[tool.vercel.fastapi.static]
+cdn = true

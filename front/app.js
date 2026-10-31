@@ -611,8 +611,18 @@ async function esperarDados() {
   for (;;) {
     const s = await atualizarEstado();
     if (s && s.pronto) return s;
-    $("#manchete").textContent = s ? "O servidor está preparando os dados da ANM. Isso leva alguns segundos na primeira vez." : `Não foi possível falar com a API em ${API}. Verifique se ela está rodando.`;
-    await new Promise((r) => setTimeout(r, 4000));
+    let texto, espera = 4000;
+    if (!s) {
+      texto = `Não foi possível falar com a API em ${API}. Verifique se ela está rodando.`;
+      espera = 15000;
+    } else if (s.ultimo_erro) {
+      texto = "O servidor não conseguiu carregar os dados. Veja o motivo no rodapé dos filtros.";
+      espera = 30000;
+    } else {
+      texto = "O servidor está preparando os dados da ANM. Isso leva alguns segundos na primeira vez.";
+    }
+    $("#manchete").textContent = texto;
+    await new Promise((r) => setTimeout(r, espera));
   }
 }
 
@@ -643,6 +653,7 @@ async function enviarAdmin(ev) {
       const t = setInterval(async () => { n += 1; await verificarNovaVersao(); if (n > 24) clearInterval(t); }, 5000);
     } else if (r.status === 401) msg.textContent = "Token incorreto.";
     else if (r.status === 403) msg.textContent = "A atualização manual está desligada no servidor. Defina CFEM_TOKEN_ADMIN para ligá-la.";
+    else if (r.status === 409) msg.textContent = (await r.json()).detail;
     else msg.textContent = `O servidor respondeu ${r.status}.`;
   } catch (e) {
     msg.textContent = `Sem resposta da API (${e.message}).`;

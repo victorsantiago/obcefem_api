@@ -119,3 +119,32 @@ def test_horario_agendado(monkeypatch):
     assert agendador.proxima_execucao(agora) is None
     monkeypatch.setattr(config, "ATUALIZAR_A_CADA_HORAS", 6)
     assert agendador.proxima_execucao(agora) == agora + timedelta(hours=6)
+
+
+@pytest.mark.skipif(not os.path.exists(os.path.join(DADOS, ARR)), reason="CSVs de teste ausentes")
+def test_modo_pre_processado_vercel(tmp_path, monkeypatch):
+    """Gera dados_processados/ e lê de volta, como na Vercel (sem rede e sem gravar em disco)."""
+    from app.repositorio import carregar_pre_processado, salvar_pre_processado
+    monkeypatch.setattr(config, "PASTA_LOCAL", DADOS)
+    monkeypatch.setattr(config, "PASTA_CACHE", tmp_path / "cache")
+    monkeypatch.setattr(config, "ARQUIVOS_ARRECADACAO", [ARR])
+    monkeypatch.setattr(config, "ARQUIVO_AUTUACAO", AUT)
+    origem = Repositorio()
+    assert origem.atualizar()["status"] == "atualizado"
+    destino = tmp_path / "dados_processados"
+    assert salvar_pre_processado(origem.dados, destino) is True
+    assert salvar_pre_processado(origem.dados, destino) is False      # mesma versão: não reescreve
+
+    monkeypatch.setattr(config, "MODO", "pre_processado")
+    monkeypatch.setattr(config, "PASTA_PRE_PROCESSADO", destino)
+    vercel = Repositorio()
+    vercel.garantir()
+    assert vercel.pronto and vercel.dados.versao == origem.dados.versao
+    f = Filtros()
+    assert indicadores(vercel.dados, f) == indicadores(origem.dados, f)
+    assert vercel.atualizar()["status"] == "erro"                       # não tenta baixar nada
+
+    sem_dados = Repositorio()
+    monkeypatch.setattr(config, "PASTA_PRE_PROCESSADO", tmp_path / "inexistente")
+    sem_dados.garantir()
+    assert not sem_dados.pronto and "gerar_dados.py" in sem_dados.ultimo_erro

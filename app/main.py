@@ -37,8 +37,12 @@ def _laco_atualizacao():
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    # A carga roda em segundo plano: a API sobe na hora e responde 503 até os dados ficarem prontos
-    threading.Thread(target=_laco_atualizacao, name="cfem-atualizacao", daemon=True).start()
+    if config.MODO == "pre_processado":
+        # Vercel/serverless: só lê dados_processados/ (menos de 1 s); a atualização é feita fora (GitHub Actions)
+        repositorio.garantir()
+    else:
+        # Servidor: a carga roda em segundo plano; a API sobe na hora e responde 503 até os dados ficarem prontos
+        threading.Thread(target=_laco_atualizacao, name="cfem-atualizacao", daemon=True).start()
     yield
     _parar.set()
 
@@ -59,6 +63,7 @@ api = APIRouter(prefix="/api/v1")
 
 # ============================================================================ dependências
 def obter_dados() -> Dados:
+    repositorio.garantir()   # no modo pré-processado, carrega sob demanda (não depende do lifespan)
     try:
         return repositorio.dados
     except DadosIndisponiveis as e:
@@ -127,8 +132,10 @@ def _resposta(nome: str, dados: Dados, f: Filtros) -> dict:
 # ============================================================================ rotas
 @api.get("/saude", tags=["sistema"], summary="Estado da carga dos dados")
 def saude():
+    repositorio.garantir()
     d = repositorio._dados
-    return {"estado": repositorio.estado, "pronto": repositorio.pronto, "versao_dados": d.versao if d else None,
+    return {"estado": repositorio.estado, "pronto": repositorio.pronto, "modo": config.MODO,
+            "versao_dados": d.versao if d else None,
             "carregado_em": d.carregado_em if d else None, "ultima_verificacao": repositorio.ultima_verificacao,
             "proxima_atualizacao": repositorio.proxima_atualizacao, "ultimo_resultado": repositorio.ultimo_resultado,
             "ultimo_erro": repositorio.ultimo_erro}
@@ -143,6 +150,9 @@ def meta(dados: Dados = Depends(obter_dados)):
           summary="Força a verificação/baixa dos CSVs na ANM (header X-Admin-Token)")
 def admin_atualizar(tarefas: BackgroundTasks, forcar: bool = False,
                     x_admin_token: str | None = Header(None)):
+    if config.MODO == "pre_processado":
+        raise HTTPException(409, detail="Nesta hospedagem os dados são atualizados pelo GitHub Actions "
+                                        "(workflow 'Atualizar dados da ANM'). Rode-o pela aba Actions do repositório.")
     if not config.TOKEN_ADMIN:
         raise HTTPException(403, detail="Defina CFEM_TOKEN_ADMIN para habilitar esta rota.")
     if x_admin_token != config.TOKEN_ADMIN:

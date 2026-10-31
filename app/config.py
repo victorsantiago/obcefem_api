@@ -20,8 +20,19 @@ ARQUIVOS_ARRECADACAO = _lista("CFEM_ARQUIVOS_ARRECADACAO", ["CFEM_Arrecadacao_20
 # Arquivo de autuações (deixe vazio para desativar)
 ARQUIVO_AUTUACAO = os.getenv("CFEM_ARQUIVO_AUTUACAO", "CFEM_Autuacao.csv").strip()
 
+# Na Vercel (variável VERCEL=1) o disco é somente leitura, exceto /tmp, e não há processo contínuo
+NA_VERCEL = bool(os.getenv("VERCEL"))
+
 # Onde guardar os CSVs baixados e os dados já processados (parquet)
-PASTA_CACHE = Path(os.getenv("CFEM_PASTA_CACHE", "./cache"))
+PASTA_CACHE = Path(os.getenv("CFEM_PASTA_CACHE") or ("/tmp/cfem_cache" if NA_VERCEL else "./cache"))
+
+# Modo de operação:
+# - "servidor": a API baixa os CSVs da ANM, processa e se atualiza sozinha todo dia (VM, Docker, Render, Railway…)
+# - "pre_processado": a API só lê dados_processados/ (gerados por scripts/gerar_dados.py, ex.: no GitHub Actions).
+#   É o modo usado automaticamente na Vercel e em outras plataformas serverless.
+PASTA_PRE_PROCESSADO = Path(os.getenv("CFEM_PASTA_PRE_PROCESSADO")
+                            or Path(__file__).resolve().parent.parent / "dados_processados")
+MODO = (os.getenv("CFEM_MODO") or ("pre_processado" if NA_VERCEL else "servidor")).strip()
 
 # Se definido, lê os CSVs desta pasta e NÃO baixa nada (útil em desenvolvimento/testes)
 PASTA_LOCAL = os.getenv("CFEM_PASTA_LOCAL") or None

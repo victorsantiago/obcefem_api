@@ -57,9 +57,28 @@ class Repositorio:
     def pronto(self) -> bool:
         return self._dados is not None
 
+    # ------------------------------------------------------------------ modo pré-processado (Vercel/serverless)
+    def garantir(self) -> None:
+        """No modo pré-processado, carrega dados_processados/ na primeira requisição (rápido, sem rede)."""
+        if self._dados is not None or config.MODO != "pre_processado":
+            return
+        with self._trava:
+            if self._dados is not None:
+                return
+            try:
+                self._dados = carregar_pre_processado(config.PASTA_PRE_PROCESSADO)
+                self.estado, self.ultimo_erro = "pronto", None
+            except Exception as erro:  # noqa: BLE001
+                log.exception("Falha ao ler os dados pré-processados")
+                self.estado = "erro"
+                self.ultimo_erro = (f"{type(erro).__name__}: {erro}. Gere os dados com "
+                                    f"'python scripts/gerar_dados.py' e publique a pasta dados_processados/.")
+
     # ------------------------------------------------------------------ carga / atualização
     def atualizar(self, forcar: bool = False) -> dict:
         """Verifica o portal, baixa o que mudou e reprocessa se necessário. Retorna um resumo."""
+        if config.MODO == "pre_processado":
+            return {"status": "erro", "erro": "No modo pré-processado a API não baixa dados; use scripts/gerar_dados.py."}
         if not self._trava.acquire(blocking=False):
             return {"status": "ja_em_andamento"}
         try:
@@ -112,14 +131,14 @@ class Repositorio:
         return self._montar(versao, regiao, nacional, cobertura, [f.como_dict() for f in fontes])
 
     @staticmethod
-    def _montar(versao, regiao, nacional, cobertura, fontes) -> Dados:
+    def _montar(versao, regiao, nacional, cobertura, fontes, carregado_em: str | None = None) -> Dados:
         substancias = {}
         for base, df in regiao.items():
             substancias[base] = {
                 "agrupadas": df.groupby("SubstanciaGrupo")["Valor"].sum().sort_values(ascending=False).index.tolist(),
                 "originais": df.groupby("Substancia")["Valor"].sum().sort_values(ascending=False).index.tolist(),
             }
-        return Dados(versao, regiao, nacional, cobertura, fontes, _agora(), substancias)
+        return Dados(versao, regiao, nacional, cobertura, fontes, carregado_em or _agora(), substancias)
 
     # ------------------------------------------------------------------ cache processado (parquet)
     def _pasta(self, versao: str):
@@ -157,6 +176,30 @@ class Repositorio:
 
 def _agora() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+# ---------------------------------------------------------------------- dados pré-processados
+def salvar_pre_processado(d: Dados, pasta) -> bool:
+    """Grava os dados processados numa pasta versionável (ex.: dados_processados/ no Git).
+    Só reescreve se a versão mudou, para não gerar commits sem mudança. Retorna True se gravou."""
+    pasta.mkdir(parents=True, exist_ok=True)
+    meta_path = pasta / "meta.json"
+    if meta_path.exists() and json.loads(meta_path.read_text()).get("versao") == d.versao:
+        return False
+    for base in d.regiao:
+        d.regiao[base].to_parquet(pasta / f"regiao_{base}.parquet", index=False)
+        d.nacional[base].to_parquet(pasta / f"nacional_{base}.parquet", index=False)
+    meta_path.write_text(json.dumps({"versao": d.versao, "gerado_em": d.carregado_em, "bases": d.bases,
+                                     "cobertura": d.cobertura, "fontes": d.fontes}, ensure_ascii=False, indent=2))
+    return True
+
+
+def carregar_pre_processado(pasta) -> Dados:
+    meta = json.loads((pasta / "meta.json").read_text())
+    regiao = {b: pd.read_parquet(pasta / f"regiao_{b}.parquet") for b in meta["bases"]}
+    nacional = {b: pd.read_parquet(pasta / f"nacional_{b}.parquet") for b in meta["bases"]}
+    log.info("Dados pré-processados carregados (versão %s, gerados em %s)", meta["versao"], meta["gerado_em"])
+    return Repositorio._montar(meta["versao"], regiao, nacional, meta["cobertura"], meta["fontes"], meta["gerado_em"])
 
 
 repositorio = Repositorio()
