@@ -161,13 +161,13 @@ select, input[type="search"], input[type="password"] {
 main { padding: 32px clamp(16px, 3vw, 44px) 48px; min-width: 0; outline: none; }
 .barra-movel { display: none; }
 
-.topo { max-width: 1080px; margin-bottom: 28px; }
+.topo { margin-bottom: 28px; }
 /* A manchete: frase que se reescreve a cada filtro. Os nomes dos municípios
    levam um sublinhado grosso na cor da série e funcionam como legenda. */
 .manchete {
-  font-size: clamp(1.45rem, 1.05rem + 1.5vw, 2.35rem);
-  line-height: 1.22; font-weight: 500; letter-spacing: -.018em;
-  margin: 0; max-width: 34ch; text-wrap: balance;
+  font-size: clamp(1.15rem, 0.95rem + 0.75vw, 1.6rem);
+  line-height: 1.3; font-weight: 500; letter-spacing: -.012em;
+  margin: 0; max-width: 62ch; text-wrap: pretty;
 }
 .manchete b { font-weight: 700; }
 .manchete .mun { text-decoration: underline; text-decoration-thickness: .14em; text-underline-offset: .16em; }
@@ -182,11 +182,21 @@ main { padding: 32px clamp(16px, 3vw, 44px) 48px; min-width: 0; outline: none; }
 /* faixa de cifras: uma linha contínua, não cartões soltos */
 .cifras { margin-bottom: 28px; }
 .cifras-grade {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
-  background: var(--surface); border: 1px solid var(--rule); border-radius: var(--raio);
+  /* o fundo cinza aparece no vão de 1px entre os cartões e faz as linhas divisórias em qualquer arranjo */
+  display: grid; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--raio); overflow: hidden;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-.cifra { padding: 14px 16px 16px; border-left: 1px solid var(--rule); position: relative; min-width: 0; }
-.cifra:first-child { border-left: 0; }
+.cifra { padding: 14px 16px 16px; background: var(--surface); position: relative; min-width: 0; }
+.cifra.media { grid-column: 1 / -1; }                       /* celular: médias em linha inteira */
+@media (min-width: 901px) {                                  /* valores numa linha, as 3 médias na outra */
+  .cifras-grade { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .cifra { grid-column: span 3; }
+  .cifra.media { grid-column: span 4; }
+}
+@media (min-width: 1560px) {                                 /* tela larga: os 7 numa linha */
+  .cifras-grade { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .cifra, .cifra.media { grid-column: auto; }
+}
 .cifra::before { content: ""; position: absolute; left: 16px; top: 0; width: 28px; height: 3px; background: var(--cor, var(--ink)); }
 .cifra .rotulo { font-size: .8rem; color: var(--muted); margin: 4px 0 2px; }
 .cifra .valor { font-size: 1.375rem; font-weight: 650; letter-spacing: -.01em; line-height: 1.2; white-space: nowrap; }

@@ -429,8 +429,8 @@ function desenharIndicadores(resp, fl) {
   $("#manchete").innerHTML = html;
 
   // faixa de cifras
-  const cifra = (rotulo, valor, extra, corVar) =>
-    `<div class="cifra" style="--cor:var(${corVar})"><div class="rotulo">${esc(rotulo)}</div><div class="valor">${valor}</div><div class="extra">${extra}</div></div>`;
+  const cifra = (rotulo, valor, extra, corVar, classe = "") =>
+    `<div class="cifra ${classe}" style="--cor:var(${corVar})"><div class="rotulo">${esc(rotulo)}</div><div class="valor">${valor}</div><div class="extra">${extra}</div></div>`;
   const nm = d.municipios_selecionados;
   $("#cifras").innerHTML = [
     cifra("Total da região", brl(d.total_regiao), `${nm} ${nm === 1 ? "município" : "municípios"}`, "--ink"),
@@ -439,7 +439,7 @@ function desenharIndicadores(resp, fl) {
     cifra("As duas somadas", brl(d.foco_soma.valor), `${pct(d.foco_soma.participacao_regiao_pct)} da região`, "--c-soma"),
     ...[["RC", "Média por município da região", "--c-media-rc"], ["PA", "Média por município do Pará", "--c-media-pa"],
       ["BR", "Média por município do Brasil", "--c-media-br"]].map(([e, rotulo, cor]) => cifra(rotulo, brl(medias[e].valor_medio),
-      `Parauapebas ${vezes(medias[e].vezes["Parauapebas"])}, Canaã ${vezes(medias[e].vezes["Canaã dos Carajás"])}<br>${NF0.format(medias[e].municipios)} ${medias[e].municipios === 1 ? "município" : "municípios"} na média`, cor)),
+      `Parauapebas ${vezes(medias[e].vezes["Parauapebas"])}, Canaã ${vezes(medias[e].vezes["Canaã dos Carajás"])}<br>${NF0.format(medias[e].municipios)} ${medias[e].municipios === 1 ? "município" : "municípios"} na média`, cor, "media")),
   ].join("");
 }
 
