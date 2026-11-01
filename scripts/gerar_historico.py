@@ -90,14 +90,27 @@ def anos_esperados(nomes):
 MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
 
 
+LIMIAR_INICIO = 0.05   # meses com menos de 5% da mediana mensal, antes do início real, são registros isolados
+
+
+def inicio_da_serie(cont):
+    """Primeiro (ano, mês) com volume de registros compatível com a série. Meses anteriores com
+    volume ínfimo são registros isolados (ex.: uma guia com ano 2002 de um processo de 2007)."""
+    corte = LIMIAR_INICIO * float(cont.median())
+    for (ano, mes), n in cont.items():
+        if n >= corte:
+            return int(ano), int(mes)
+    return tuple(int(x) for x in cont.index[0])
+
+
 def verificar(nacional, anos, fim_primeiro_arquivo=None):
     """Devolve (problemas, inicio). Os meses ANTES do primeiro mês com dados são o começo da série
     da ANM (não é erro); a partir dele, todos os meses de todos os anos precisam estar presentes."""
     problemas = []
-    cont = nacional.groupby(["Ano", "Mes"]).size()
+    cont = nacional.groupby(["Ano", "Mes"]).size().sort_index()
     if cont.empty:
         return ["nenhum registro em nenhum arquivo"], None
-    inicio = tuple(int(x) for x in min(cont.index))
+    inicio = inicio_da_serie(cont)
     if fim_primeiro_arquivo is not None and inicio[0] > fim_primeiro_arquivo:
         problemas.append(f"o primeiro arquivo não tem nenhum registro (a série só começa em {inicio[0]})")
     for ano in anos:
@@ -136,6 +149,10 @@ def resumo_markdown(meta, problemas):
     br = lambda v: f"R$ {v / 1e6:,.1f} mi".replace(",", "X").replace(".", ",").replace("X", ".")
     linhas = [f"## Histórico da CFEM {meta['ano_inicio']}–{meta['ano_fim']}", "",
               f"A série da ANM começa em {MESES[meta['mes_inicio'] - 1]}/{meta['ano_inicio']}.", ""]
+    desc = meta.get("registros_isolados_descartados") or {}
+    if desc.get("linhas_agregadas"):
+        valor = f"R$ {desc['valor']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        linhas += [f"Registros isolados antes do início, deixados de fora: {', '.join(desc['meses'])} ({valor} no total).", ""]
     if problemas:
         linhas += ["**Problemas encontrados (nada foi gravado):**", ""] + [f"- {p}" for p in problemas] + [""]
     linhas += ["| Ano | Brasil | Pará | Região de Carajás | Canaã + Parauapebas |", "|---|---:|---:|---:|---:|"]
@@ -166,10 +183,20 @@ def main() -> int:
     problemas, inicio = verificar(nacional, anos, fim_primeiro)
     problemas = checar_tamanhos(fontes) + checar_valores(nacional) + problemas
     inicio = inicio or (anos[0], 1)
+
+    # registros isolados antes do início real da série ficam de fora (e são informados no resumo)
+    chave = nacional["Ano"].astype(int) * 100 + nacional["Mes"].astype(int)
+    antes = chave < inicio[0] * 100 + inicio[1]
+    descartados = {"linhas_agregadas": int(antes.sum()), "valor": round(float(nacional.loc[antes, "Valor"].sum()), 2),
+                   "meses": sorted({f"{MESES[m - 1]}/{a}" for a, m in nacional.loc[antes, ["Ano", "Mes"]].astype(int).itertuples(index=False)})}
+    nacional = nacional[~antes]
+    chave_r = regiao["Ano"].astype(int) * 100 + regiao["Mes"].astype(int)
+    regiao = regiao[chave_r >= inicio[0] * 100 + inicio[1]]
     versao = hashlib.sha1("\n".join(sorted(f.assinatura() for f in fontes)).encode()).hexdigest()[:12]
     meta = {"versao": versao, "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "ano_inicio": inicio[0], "mes_inicio": inicio[1], "ano_fim": anos[-1], "fontes": [f.como_dict() for f in fontes],
-            "totais_por_ano": totais_por_ano(nacional, regiao), "problemas_ignorados": problemas if args.forcar else []}
+            "totais_por_ano": totais_por_ano(nacional, regiao), "problemas_ignorados": problemas if args.forcar else [],
+            "registros_isolados_descartados": descartados}
 
     texto = resumo_markdown(meta, problemas)
     print(texto)

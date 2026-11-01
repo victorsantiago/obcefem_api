@@ -1,0 +1,196 @@
+{
+  "versao": "ad3297deb3ad",
+  "gerado_em": "2026-11-01T21:35:16+00:00",
+  "ano_inicio": 2003,
+  "mes_inicio": 5,
+  "ano_fim": 2021,
+  "fontes": [
+    {
+      "nome": "CFEM_Arrecadacao_2002_2006.csv",
+      "origem": "local",
+      "url": null,
+      "tamanho_bytes": 25844605,
+      "sha256": "3bd9f41aa0feaf7e227e17916f9454772503d908575e920b3461bca1769d8271",
+      "last_modified": "2026-11-01T21:33:51+00:00",
+      "etag": null,
+      "baixado_em": null,
+      "conteudo_mudou": null
+    },
+    {
+      "nome": "CFEM_Arrecadacao_2007_2011.csv",
+      "origem": "local",
+      "url": null,
+      "tamanho_bytes": 48650603,
+      "sha256": "824d0df403c7a47ed3164d7a0df56e855ccc54791d80187563d9aa1a956eac38",
+      "last_modified": "2026-11-01T21:33:51+00:00",
+      "etag": null,
+      "baixado_em": null,
+      "conteudo_mudou": null
+    },
+    {
+      "nome": "CFEM_Arrecadacao_2012_2016.csv",
+      "origem": "local",
+      "url": null,
+      "tamanho_bytes": 66880350,
+      "sha256": "cf8ea91351cc539b123b1bbb97ae76424ea71a1339b6e87fab47d4fe36c7790c",
+      "last_modified": "2026-11-01T21:33:51+00:00",
+      "etag": null,
+      "baixado_em": null,
+      "conteudo_mudou": null
+    },
+    {
+      "nome": "CFEM_Arrecadacao_2017_2021.csv",
+      "origem": "local",
+      "url": null,
+      "tamanho_bytes": 84062891,
+      "sha256": "bb59023ae0af08065a0f5eb69b52678816bcf03c6a7cc40bbee3473546a2cdc0",
+      "last_modified": "2026-11-01T21:33:51+00:00",
+      "etag": null,
+      "baixado_em": null,
+      "conteudo_mudou": null
+    }
+  ],
+  "totais_por_ano": {
+    "2003": {
+      "brasil": 140452482.46,
+      "para": 26639597.46,
+      "regiao_carajas": 4970302.48,
+      "canaa_parauapebas": 4876294.12,
+      "linhas_regiao": 50
+    },
+    "2004": {
+      "brasil": 323105759.01,
+      "para": 92068948.29,
+      "regiao_carajas": 54779965.19,
+      "canaa_parauapebas": 54339703.68,
+      "linhas_regiao": 163
+    },
+    "2005": {
+      "brasil": 405563512.48,
+      "para": 120211522.24,
+      "regiao_carajas": 82900501.25,
+      "canaa_parauapebas": 80885004.44,
+      "linhas_regiao": 175
+    },
+    "2006": {
+      "brasil": 465148006.92,
+      "para": 132947098.96,
+      "regiao_carajas": 98769431.74,
+      "canaa_parauapebas": 98526937.15,
+      "linhas_regiao": 197
+    },
+    "2007": {
+      "brasil": 547096305.88,
+      "para": 149361584.52,
+      "regiao_carajas": 109860128.14,
+      "canaa_parauapebas": 108600599.96,
+      "linhas_regiao": 245
+    },
+    "2008": {
+      "brasil": 853992554.67,
+      "para": 238114077.06,
+      "regiao_carajas": 192873384.42,
+      "canaa_parauapebas": 183373635.86,
+      "linhas_regiao": 368
+    },
+    "2009": {
+      "brasil": 742568421.52,
+      "para": 242649824.91,
+      "regiao_carajas": 194473145.75,
+      "canaa_parauapebas": 190988559.69,
+      "linhas_regiao": 447
+    },
+    "2010": {
+      "brasil": 1083056987.82,
+      "para": 314992533.43,
+      "regiao_carajas": 262502093.04,
+      "canaa_parauapebas": 256285905.18,
+      "linhas_regiao": 375
+    },
+    "2011": {
+      "brasil": 1560776864.59,
+      "para": 462690952.0,
+      "regiao_carajas": 405116077.44,
+      "canaa_parauapebas": 403041484.23,
+      "linhas_regiao": 392
+    },
+    "2012": {
+      "brasil": 1835105284.91,
+      "para": 524272883.59,
+      "regiao_carajas": 468693017.86,
+      "canaa_parauapebas": 463953895.05,
+      "linhas_regiao": 563
+    },
+    "2013": {
+      "brasil": 2376307419.22,
+      "para": 804582178.74,
+      "regiao_carajas": 759354208.09,
+      "canaa_parauapebas": 738143808.1,
+      "linhas_regiao": 644
+    },
+    "2014": {
+      "brasil": 1711491885.23,
+      "para": 504786986.59,
+      "regiao_carajas": 434472324.32,
+      "canaa_parauapebas": 401877807.89,
+      "linhas_regiao": 611
+    },
+    "2015": {
+      "brasil": 1519854399.58,
+      "para": 442519160.86,
+      "regiao_carajas": 340615679.78,
+      "canaa_parauapebas": 270709777.21,
+      "linhas_regiao": 709
+    },
+    "2016": {
+      "brasil": 1797945944.54,
+      "para": 526443296.68,
+      "regiao_carajas": 394818736.68,
+      "canaa_parauapebas": 314288273.63,
+      "linhas_regiao": 691
+    },
+    "2017": {
+      "brasil": 1838638048.68,
+      "para": 681171696.55,
+      "regiao_carajas": 583993589.15,
+      "canaa_parauapebas": 474615531.51,
+      "linhas_regiao": 656
+    },
+    "2018": {
+      "brasil": 3035669222.28,
+      "para": 1294064307.55,
+      "regiao_carajas": 1165873688.21,
+      "canaa_parauapebas": 1016071805.2,
+      "linhas_regiao": 506
+    },
+    "2019": {
+      "brasil": 4503364733.85,
+      "para": 2192444442.72,
+      "regiao_carajas": 2032845744.13,
+      "canaa_parauapebas": 1862208155.37,
+      "linhas_regiao": 536
+    },
+    "2020": {
+      "brasil": 6079380254.96,
+      "para": 3112168505.99,
+      "regiao_carajas": 2898637861.39,
+      "canaa_parauapebas": 2733485279.49,
+      "linhas_regiao": 492
+    },
+    "2021": {
+      "brasil": 10288415246.14,
+      "para": 4812913904.47,
+      "regiao_carajas": 4552429592.43,
+      "canaa_parauapebas": 4314557399.87,
+      "linhas_regiao": 473
+    }
+  },
+  "problemas_ignorados": [],
+  "registros_isolados_descartados": {
+    "linhas_agregadas": 1,
+    "valor": 2064.1,
+    "meses": [
+      "ago/2002"
+    ]
+  }
+}

@@ -121,12 +121,12 @@ def notas(dados: Dados, f: Filtros) -> list[str]:
             mes = MESES_ABREV[max(cob["ultimo_mes_completo"], 1) - 1]
             n.append(f"{cob['ultimo_ano']} é parcial: o volume de registros só é completo até {mes}. "
                      f"Para comparar com outros anos use mes_fim={max(cob['ultimo_mes_completo'], 1)}.")
-    else:
-        n.append("Autuação = valor inicial do auto de cobrança (não é valor pago). "
-                 "Ano = ano do processo de cobrança (AnoPublicação falta em ~1/3 das linhas).")
         if f.ano_inicio <= cob.get("primeiro_ano", 0) and cob.get("primeiro_mes", 1) > f.mes_inicio:
             n.append(f"A série da ANM começa em {MESES_ABREV[cob['primeiro_mes'] - 1]}/{cob['primeiro_ano']}; "
                      f"{cob['primeiro_ano']} não tem os meses anteriores.")
+    else:
+        n.append("Autuação = valor inicial do auto de cobrança (não é valor pago). "
+                 "Ano = ano do processo de cobrança (AnoPublicação falta em ~1/3 das linhas).")
     n.append("Valores nominais (sem correção monetária).")
     return n
 
