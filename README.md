@@ -1,6 +1,6 @@
 # API CFEM — Canaã dos Carajás e Parauapebas × Região de Carajás
 
-Backend em Python (FastAPI) que baixa os CSVs de **https://dadosabertos.anm.gov.br/CFEM/**, aplica a mesma lógica do painel do Colab e entrega os dados prontos para o front montar os gráficos.
+Backend em Python (FastAPI) que baixa os CSVs de **https://dadosabertos.anm.gov.br/CFEM/** e entrega os dados prontos para o front montar os gráficos.
 
 - **Foco:** Parauapebas e Canaã dos Carajás.
 - **Comparação:** os 12 municípios da região de Carajás e a **média por município do Pará e do Brasil**.
