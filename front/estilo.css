@@ -247,10 +247,16 @@ main { padding: 32px clamp(16px, 3vw, 44px) 48px; min-width: 0; outline: none; }
 /* ============================================================
    Navegação entre as páginas
    ============================================================ */
-.paginas { display: flex; gap: 4px; margin: -8px 0 24px; border-bottom: 1px solid var(--rule); overflow-x: auto; }
+/* A linha de base é uma sombra interna (não borda): assim o sublinhado da aba ativa fica por cima dela
+   sem margem negativa, que fazia o Windows mostrar uma barra de rolagem vertical na navegação. */
+.paginas {
+  display: flex; gap: 4px; margin: -8px 0 24px; box-shadow: inset 0 -1px 0 var(--rule);
+  overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+}
+.paginas::-webkit-scrollbar { display: none; }
 .paginas a {
   padding: 8px 12px 10px; text-decoration: none; color: var(--muted); font-weight: 600; font-size: .9rem;
-  border-bottom: 3px solid transparent; margin-bottom: -1px; white-space: nowrap;
+  border-bottom: 3px solid transparent; white-space: nowrap;
 }
 .paginas a:hover { color: var(--ink); }
 .paginas a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--marca); }
