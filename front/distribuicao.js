@@ -125,66 +125,79 @@ function desenharFluxo(resp, fl) {
   const nomesUniao = Object.fromEntries(d.parcelas_uniao.map((p) => [p.id, p.nome]));
   const tot = d.total;
   const estreito = $("#g-fluxo").clientWidth < 640;
-  // Três colunas fixas: onde a CFEM foi gerada -> destino -> parcelas da União.
-  // As posições são calculadas aqui para a União ficar alinhada com os outros destinos.
+  // Colunas, da esquerda para a direita:
+  //   1. tudo o que foi arrecadado na região
+  //   2. a cota do município produtor, que fica com cada prefeitura (Parauapebas, Canaã, demais)
+  //   3. o restante: Governo do Pará, municípios afetados e União
+  //   4. as parcelas da União (ANM, FNDCT, CETEM, IBAMA) — só em tela larga
+  const outros = ["estado", "afetados", "uniao"].filter((k) => tot.destinos[k] > 0);
+  const comParcelas = outros.includes("uniao") && !estreito;
+  const X = comParcelas ? [0.001, 0.3, 0.62, 0.999] : [0.001, 0.48, 0.999];
   const nos = { label: [], color: [], x: [], y: [], customdata: [] };
   const links = { source: [], target: [], value: [], color: [], customdata: [] };
   const no = (rotulo, cor, x, y, dica) => {
     nos.label.push(rotulo); nos.color.push(cor); nos.x.push(x); nos.y.push(Math.min(Math.max(y, 0.001), 0.999));
     nos.customdata.push(dica); return nos.label.length - 1;
   };
-  const vao = 0.05;
-  const posicoes = (valores) => {
-    const total = valores.reduce((a, b) => a + b, 0), util = 1 - vao * (valores.length - 1);
-    let acum = 0;
-    return valores.map((v, i) => { const y = ((acum + v / 2) / total) * util + vao * i; acum += v; return y; });
+  const liga = (de, para, v, cor, dica) => {
+    links.source.push(de); links.target.push(para); links.value.push(v / 1e6); links.color.push(cor); links.customdata.push(dica);
   };
   const translucida = (hex, a) => {
     const h = hex.replace("#", ""); const n = parseInt(h.length === 3 ? h.split("").map((c) => c + c).join("") : h, 16);
     return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
   };
-  const yOrig = posicoes(origens.map((o) => o.gerado));
-  const iOrig = origens.map((o, i) => no(`${o.nome}<br>${brl(o.gerado)}`, corSerie(o.nome), 0.001, yOrig[i],
-    `<b>${o.nome}</b><br>Arrecadado: ${brl(o.gerado, false)}`));
-  const destinos = DEST.filter((k) => tot.destinos[k] > 0);
-  const yDest = posicoes(destinos.map((k) => tot.destinos[k]));
-  // no celular não cabe a terceira coluna: as parcelas da União ficam no cartão e no toque sobre "União"
-  const comParcelas = destinos.includes("uniao") && !estreito;
-  const xDest = comParcelas ? 0.56 : 0.999;
-  const iDest = Object.fromEntries(destinos.map((k, i) => [k,
-    no(`${DEST_NOME[k]}<br>${brl(tot.destinos[k])} (${pct(tot.percentuais[k])})`, corDest(k), xDest, yDest[i],
-      `<b>${DEST_NOME[k]}</b><br>${brl(tot.destinos[k], false)}<br>${pct(tot.percentuais[k])} do arrecadado`
-      + (k === "uniao" ? `<br>${Object.entries(tot.uniao).filter(([, v]) => v > 0).map(([p, v]) => `${nomesUniao[p]} ${brl(v)}`).join(" · ")}` : ""))]));
+  // posições verticais na mesma escala para as colunas 2 e 3: prefeituras em cima, demais destinos embaixo
+  const vao = 0.035;
+  const valores = [...origens.map((o) => o.destinos.municipio), ...outros.map((k) => tot.destinos[k])];
+  const util = 1 - vao * (valores.length - 1);
+  let acum = 0;
+  const ys = valores.map((v, i) => { const y = ((acum + v / 2) / tot.gerado) * util + vao * i; acum += v; return y; });
+
+  const iTotal = no("", css("--c-soma"), X[0], 0.5,
+    `<b>CFEM arrecadada na região</b><br>${brl(tot.gerado, false)}<br>${origens.map((o) => `${o.nome}: ${brl(o.gerado)}`).join("<br>")}`);
   origens.forEach((o, i) => {
-    for (const k of destinos) {
-      const v = o.destinos[k];
-      if (!(v > 0)) continue;
-      links.source.push(iOrig[i]); links.target.push(iDest[k]); links.value.push(v / 1e6);
-      links.color.push(translucida(corSerie(o.nome), 0.32));
-      links.customdata.push(`${o.nome} → ${DEST_NOME[k]}<br>${brl(v, false)} (${pct(o.percentuais[k])} do que foi arrecadado)`);
-    }
+    const v = o.destinos.municipio;
+    if (!(v > 0)) return;
+    const nome = o.nome === DEMAIS ? "Demais municípios" : o.nome;
+    const alvo = no(`${nome}<br>${brl(v)}`, corSerie(o.nome), X[1], ys[i],
+      `<b>Prefeitura${o.nome === DEMAIS ? "s dos demais municípios" : ` de ${o.nome}`}</b><br>${brl(v, false)}<br>${pct(o.percentuais.municipio)} do que foi arrecadado no município`);
+    liga(iTotal, alvo, v, translucida(corSerie(o.nome), 0.38), `Cota do município produtor → ${nome}<br>${brl(v, false)}`);
+  });
+  const iOutro = {};
+  outros.forEach((k, j) => {
+    const v = tot.destinos[k];
+    iOutro[k] = no(`${DEST_NOME[k]}<br>${brl(v)} (${pct(tot.percentuais[k])})`, corDest(k), X[2], ys[origens.length + j],
+      `<b>${DEST_NOME[k]}</b><br>${brl(v, false)}<br>${pct(tot.percentuais[k])} do arrecadado`
+      + (k === "uniao" ? `<br>${Object.entries(tot.uniao).filter(([, x]) => x > 0).map(([p, x]) => `${nomesUniao[p]} ${brl(x)}`).join(" · ")}` : "")
+      + `<br>${origens.map((o) => `${o.nome === DEMAIS ? "Demais municípios" : o.nome}: ${brl(o.destinos[k])}`).join("<br>")}`);
+    liga(iTotal, iOutro[k], v, translucida(corDest(k), 0.38), `Arrecadado → ${DEST_NOME[k]}<br>${brl(v, false)} (${pct(tot.percentuais[k])})`);
   });
   if (comParcelas) {
     const parcelas = Object.entries(tot.uniao).filter(([, v]) => v > 0);
-    const yU = yDest[destinos.indexOf("uniao")], passo = estreito ? 0.1 : 0.085;
-    let ys = parcelas.map((_, j) => yU + (j - (parcelas.length - 1) / 2) * passo);
-    const excesso = Math.max(...ys) - 0.97;
-    if (excesso > 0) ys = ys.map((y) => y - excesso);
+    const yU = nos.y[iOutro.uniao], passo = 0.075;
+    let yp = parcelas.map((_, j) => yU + (j - (parcelas.length - 1) / 2) * passo);
+    const excesso = Math.max(...yp) - 0.97;
+    if (excesso > 0) yp = yp.map((y) => y - excesso);
     parcelas.forEach(([k, v], j) => {
-      const alvo = no(`${nomesUniao[k]} ${brl(v)}`, corDest("uniao"), 0.999, ys[j],
+      const alvo = no(`${nomesUniao[k]} ${brl(v)}`, corDest("uniao"), X[3], yp[j],
         `<b>União: ${nomesUniao[k]}</b><br>${brl(v, false)}<br>${pct((v / tot.gerado) * 100)} do arrecadado`);
-      links.source.push(iDest.uniao); links.target.push(alvo); links.value.push(v / 1e6);
-      links.color.push(translucida(corDest("uniao"), 0.3));
-      links.customdata.push(`União → ${nomesUniao[k]}<br>${brl(v, false)}`);
+      liga(iOutro.uniao, alvo, v, translucida(corDest("uniao"), 0.3), `União → ${nomesUniao[k]}<br>${brl(v, false)}`);
     });
   }
+  // títulos das colunas
+  const pMun = pct(tot.percentuais.municipio), pResto = pct(100 - (tot.percentuais.municipio || 0));
+  const titulos = comParcelas
+    ? [[`Arrecadado: ${brl(tot.gerado)}`, X[0], "left"], [`Município produtor (${pMun})`, X[1], "center"], [`Estado, afetados e União (${pResto})`, X[2], "center"], ["Parcelas da União", X[3], "right"]]
+    : [[`Arrecadado<br>${brl(tot.gerado)}`, X[0], "left"], [`Prefeituras (${pMun})`, X[1], "center"], [`Demais (${pResto})`, X[2], "right"]];
+  const annotations = titulos.map(([t, x, al]) => ({ text: `<b>${t}</b>`, x, y: 1, xref: "paper", yref: "paper", yanchor: "bottom",
+    xanchor: al, showarrow: false, font: { size: estreito ? 10.5 : 12, color: css("--muted") } }));
   plotar("g-fluxo", [{
     type: "sankey", arrangement: "snap", valueformat: ",.1f", valuesuffix: " mi",
-    node: { ...nos, pad: estreito ? 10 : 16, thickness: estreito ? 12 : 16, line: { width: 0 },
+    node: { ...nos, pad: estreito ? 10 : 14, thickness: estreito ? 12 : 16, line: { width: 0 },
       hovertemplate: "%{customdata}<extra></extra>" },
     link: { ...links, hovertemplate: "%{customdata}<extra></extra>" },
     textfont: { family: css("--fonte"), size: estreito ? 10.5 : 12.5, color: css("--ink") },
-  }], layout({ height: estreito ? 480 : 460, margin: { l: 4, r: 4, t: 10, b: 10 } }));
+  }], layout({ height: estreito ? 500 : 480, margin: { l: 4, r: 4, t: estreito ? 40 : 30, b: 10 }, annotations }));
 }
 
 // ============================================================================ destinos por ano
