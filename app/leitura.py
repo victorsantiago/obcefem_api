@@ -201,7 +201,10 @@ def calcular_cobertura(cont: pd.Series) -> dict:
     meses_ult = cont.loc[ultimo_ano]
     completos = meses_ult[meses_ult >= 0.5 * ref].index if ref else meses_ult.index
     ultimo_completo = int(max(completos)) if len(completos) else 0
+    primeiro = min(cont.index)
     return {
+        "primeiro_ano": int(primeiro[0]),
+        "primeiro_mes": int(primeiro[1]),
         "ultimo_ano": ultimo_ano,
         "ultimo_mes_com_registro": int(meses_ult.index.max()),
         "ultimo_mes_completo": ultimo_completo,

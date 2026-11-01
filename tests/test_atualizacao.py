@@ -165,10 +165,15 @@ def test_verificacao_do_historico_e_trava_diaria(tmp_path):
     hist = carregar("gerar_historico")
     linhas = [{"Ano": a, "Mes": m, "Valor": 1.0} for a in (2019, 2020) for m in range(1, 13) for _ in range(10)]
     completo = pd.DataFrame(linhas)
-    assert hist.verificar(completo, [2019, 2020]) == []
+    assert hist.verificar(completo, [2019, 2020]) == ([], (2019, 1))
     truncado = completo[~((completo["Ano"] == 2020) & (completo["Mes"] > 6))]
-    assert any("2020: faltam os meses" in p for p in hist.verificar(truncado, [2019, 2020]))
-    assert any("2021: nenhum registro" in p for p in hist.verificar(completo, [2019, 2020, 2021]))
+    assert any("2020: faltam os meses" in p for p in hist.verificar(truncado, [2019, 2020])[0])
+    assert any("2021: nenhum registro" in p for p in hist.verificar(completo, [2019, 2020, 2021])[0])
+    # série que começa no meio (como a da ANM, em mai/2003): o começo vazio não é erro
+    tardio = completo[(completo["Ano"] > 2019) | (completo["Mes"] >= 5)]
+    assert hist.verificar(tardio, [2018, 2019, 2020]) == ([], (2019, 5))
+    # mas se o primeiro arquivo inteiro vier vazio, é erro
+    assert hist.verificar(completo[completo["Ano"] == 2020], [2018, 2019, 2020], fim_primeiro_arquivo=2019)[0]
 
     diario = carregar("gerar_dados")
     pasta = tmp_path / "publicado"

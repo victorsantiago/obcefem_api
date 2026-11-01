@@ -55,7 +55,7 @@ const pct = (v) => (v === null || v === undefined ? "–" : v > 0 && v < 0.1 ? "
 const vezes = (v) => (v === null || v === undefined ? "–" : v >= 10 ? `${NF0.format(v)}×` : `${NF1.format(v)}×`);
 const vezesTexto = (v) => (v === null || v === undefined ? "–" : v >= 10 ? NF0.format(v) : NF1.format(v));
 const frase = (s) => { const t = String(s).toLowerCase(); return t.charAt(0).toUpperCase() + t.slice(1); };
-const rotuloEixo = (r) => r.replace(" (parcial)", "<br>(parcial)");
+const rotuloEixo = (r) => r.replace(" (", "<br>(");
 const dataHora = (iso) => (iso ? new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "–");
 
 async function chamar(rota, qs = "", opcoes = {}) {

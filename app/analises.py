@@ -85,9 +85,24 @@ def ano_parcial(dados: Dados, f: Filtros, ano: int) -> bool:
             and f.mes_fim > cob["ultimo_mes_completo"])
 
 
+def inicio_parcial(dados: Dados, f: Filtros, ano: int) -> bool:
+    """Primeiro ano da série que não começa em janeiro (ex.: a série da ANM começa em mai/2003)."""
+    cob = dados.cobertura
+    return (f.base == "arrecadacao" and ano == cob.get("primeiro_ano")
+            and cob.get("primeiro_mes", 1) > f.mes_inicio)
+
+
 def info_anos(dados: Dados, f: Filtros) -> list[dict]:
-    return [{"ano": a, "rotulo": f"{a} (parcial)" if ano_parcial(dados, f, a) else str(a),
-             "parcial": ano_parcial(dados, f, a)} for a in f.anos]
+    saida = []
+    for a in f.anos:
+        if inicio_parcial(dados, f, a):
+            rotulo = f"{a} (desde {MESES_ABREV[dados.cobertura['primeiro_mes'] - 1]})"
+        elif ano_parcial(dados, f, a):
+            rotulo = f"{a} (parcial)"
+        else:
+            rotulo = str(a)
+        saida.append({"ano": a, "rotulo": rotulo, "parcial": rotulo != str(a)})
+    return saida
 
 
 def descricao_media(f: Filtros) -> str:
@@ -109,6 +124,9 @@ def notas(dados: Dados, f: Filtros) -> list[str]:
     else:
         n.append("Autuação = valor inicial do auto de cobrança (não é valor pago). "
                  "Ano = ano do processo de cobrança (AnoPublicação falta em ~1/3 das linhas).")
+        if f.ano_inicio <= cob.get("primeiro_ano", 0) and cob.get("primeiro_mes", 1) > f.mes_inicio:
+            n.append(f"A série da ANM começa em {MESES_ABREV[cob['primeiro_mes'] - 1]}/{cob['primeiro_ano']}; "
+                     f"{cob['primeiro_ano']} não tem os meses anteriores.")
     n.append("Valores nominais (sem correção monetária).")
     return n
 

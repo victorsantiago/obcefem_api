@@ -44,23 +44,35 @@ def anos_esperados(nomes):
     return sorted(anos)
 
 
-def verificar(nacional, anos):
-    """Lista de problemas encontrados (vazia = tudo certo)."""
+MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
+
+
+def verificar(nacional, anos, fim_primeiro_arquivo=None):
+    """Devolve (problemas, inicio). Os meses ANTES do primeiro mês com dados são o começo da série
+    da ANM (não é erro); a partir dele, todos os meses de todos os anos precisam estar presentes."""
     problemas = []
     cont = nacional.groupby(["Ano", "Mes"]).size()
+    if cont.empty:
+        return ["nenhum registro em nenhum arquivo"], None
+    inicio = tuple(int(x) for x in min(cont.index))
+    if fim_primeiro_arquivo is not None and inicio[0] > fim_primeiro_arquivo:
+        problemas.append(f"o primeiro arquivo não tem nenhum registro (a série só começa em {inicio[0]})")
     for ano in anos:
+        if ano < inicio[0]:
+            continue
         if ano not in cont.index.get_level_values(0):
             problemas.append(f"{ano}: nenhum registro")
             continue
         meses = cont.loc[ano]
-        faltando = sorted(set(range(1, 13)) - set(int(m) for m in meses.index))
+        esperados = set(range(inicio[1] if ano == inicio[0] else 1, 13))
+        faltando = sorted(esperados - set(int(m) for m in meses.index))
         if faltando:
             problemas.append(f"{ano}: faltam os meses {faltando}")
         mediana = float(meses.median())
         fracos = [int(m) for m, n in meses.items() if n < LIMIAR_MES * mediana]
         if fracos:
             problemas.append(f"{ano}: meses com poucos registros {fracos} (mediana do ano: {mediana:.0f})")
-    return problemas
+    return problemas, inicio
 
 
 def totais_por_ano(nacional, regiao):
@@ -79,7 +91,8 @@ def totais_por_ano(nacional, regiao):
 
 def resumo_markdown(meta, problemas):
     br = lambda v: f"R$ {v / 1e6:,.1f} mi".replace(",", "X").replace(".", ",").replace("X", ".")
-    linhas = [f"## Histórico da CFEM {meta['ano_inicio']}–{meta['ano_fim']}", ""]
+    linhas = [f"## Histórico da CFEM {meta['ano_inicio']}–{meta['ano_fim']}", "",
+              f"A série da ANM começa em {MESES[meta['mes_inicio'] - 1]}/{meta['ano_inicio']}.", ""]
     if problemas:
         linhas += ["**Problemas encontrados (nada foi gravado):**", ""] + [f"- {p}" for p in problemas] + [""]
     linhas += ["| Ano | Brasil | Pará | Região de Carajás | Canaã + Parauapebas |", "|---|---:|---:|---:|---:|"]
@@ -106,10 +119,12 @@ def main() -> int:
     regiao = regiao[regiao["Ano"].between(anos[0], anos[-1])]
     nacional = nacional[nacional["Ano"].between(anos[0], anos[-1])]
 
-    problemas = verificar(nacional, anos)
+    fim_primeiro = int(RE_PERIODO.search(nomes[0]).group(2))
+    problemas, inicio = verificar(nacional, anos, fim_primeiro)
+    inicio = inicio or (anos[0], 1)
     versao = hashlib.sha1("\n".join(sorted(f.assinatura() for f in fontes)).encode()).hexdigest()[:12]
     meta = {"versao": versao, "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "ano_inicio": anos[0], "ano_fim": anos[-1], "fontes": [f.como_dict() for f in fontes],
+            "ano_inicio": inicio[0], "mes_inicio": inicio[1], "ano_fim": anos[-1], "fontes": [f.como_dict() for f in fontes],
             "totais_por_ano": totais_por_ano(nacional, regiao), "problemas_ignorados": problemas if args.forcar else []}
 
     texto = resumo_markdown(meta, problemas)

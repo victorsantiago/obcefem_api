@@ -214,7 +214,8 @@ def com_historico(d: Dados, pasta=None) -> Dados:
         atual = destino["arrecadacao"]
         destino["arrecadacao"] = pd.concat([hist[hist["Ano"] <= corte], atual[atual["Ano"] > corte]], ignore_index=True)
     log.info("Histórico %s–%s anexado (versão %s)", meta["ano_inicio"], meta["ano_fim"], meta["versao"])
-    return Repositorio._montar(f"{d.versao}+{meta['versao']}", regiao, nacional, d.cobertura,
+    cobertura = {**d.cobertura, "primeiro_ano": int(meta["ano_inicio"]), "primeiro_mes": int(meta.get("mes_inicio", 1))}
+    return Repositorio._montar(f"{d.versao}+{meta['versao']}", regiao, nacional, cobertura,
                                d.fontes + meta.get("fontes", []), d.carregado_em)
 
 
