@@ -9,7 +9,7 @@ const URL_INICIAL = new URLSearchParams(location.search);
 const API = (URL_INICIAL.get("api") || window.CFEM_API || new URL("api/v1", document.baseURI).href).replace(/\/$/, "");
 
 const FOCO = ["Parauapebas", "Canaã dos Carajás"];
-const DEMAIS = "Demais municípios da região";
+const DEMAIS = "Demais municípios da região de Carajás";
 const SOMA = "Canaã + Parauapebas";
 const REF_PA = "Média dos municípios do Pará";
 const REF_BR = "Média dos municípios do Brasil";
