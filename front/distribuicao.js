@@ -110,7 +110,15 @@ function desenharIndicadoresDist(resp, fl) {
 }
 
 // ============================================================================ fluxo (Sankey)
+// "(2022 a 2026)", "(2024)" ou "(2022 a 2026, jan a jun)" para os títulos
+function intervalo(fl) {
+  const anos = fl.ano_inicio === fl.ano_fim ? fl.ano_inicio : `${fl.ano_inicio} a ${fl.ano_fim}`;
+  const meses = fl.mes_inicio !== "1" || fl.mes_fim !== "12" ? `, ${MESES[fl.mes_inicio - 1]} a ${MESES[fl.mes_fim - 1]}` : "";
+  return `(${anos}${meses})`;
+}
+
 function desenharFluxo(resp, fl) {
+  $("#titulo-fluxo").textContent = `Para onde vai a CFEM gerada na região ${intervalo(fl)}`;
   const d = resp.dados;
   const origens = d.origens.filter((o) => o.gerado > 0);
   if (!origens.length) { plotar("g-fluxo", [], {}); return; }
@@ -185,7 +193,9 @@ function desenharDestinosAnual(resp, fl) {
   const o = d.origens.find((x) => x.id === estadoDist.origem) || d.origens[0];
   const x = d.anos.map((a) => rotuloEixo(a.rotulo));
   const mudanca = d.regra_por_ano.findIndex((r, i) => i > 0 && r !== d.regra_por_ano[i - 1]);
-  $("#sub-destinos").textContent = `${o.nome}: a pilha inteira é o total arrecadado. `
+  const total = estado.meta.regiao_carajas.length, nm = fl.municipios.length;
+  const recorte = o.id === "regiao" && nm && nm < total ? ` (${nm} de ${total} municípios selecionados)` : "";
+  $("#sub-destinos").textContent = `${o.nome}${recorte}: a pilha inteira é o total arrecadado. `
     + (mudanca > 0 ? `Em ${d.anos[mudanca].ano} entra a regra atual, com a cota dos municípios afetados.` : "Cada cor é um destino.");
   const traces = tudoZero([o.gerado]) ? [] : DEST.filter((k) => o.destinos[k].some((v) => v)).map((k) => ({
     type: "bar", name: DEST_NOME[k], x, y: o.destinos[k].map((v) => (log && !v ? null : v / 1e6)),

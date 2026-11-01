@@ -89,7 +89,7 @@
         <fieldset>
           <legend>Médias de referência (região, Pará e Brasil)</legend>
           <label class="marcar"><input type="radio" name="denominador" value="com_registro" checked> Só municípios com arrecadação no período</label>
-          <label class="marcar"><input type="radio" name="denominador" value="todos"> Todos os municípios (região 12, PA 144, Brasil 5.570)</label>
+          <label class="marcar"><input type="radio" name="denominador" value="todos"> Todos os municípios (Região de Integração do Carajás 12, PA 144 e Brasil 5.570)</label>
           <label class="marcar"><input type="checkbox" name="excluir_foco_das_medias"> Tirar Canaã e Parauapebas das médias</label>
         </fieldset>
 
@@ -140,15 +140,22 @@
         <div class="cifras-grade cinco" id="cifras"></div>
       </section>
 
-      <section class="bloco" id="sec-regras">
-        <h2>Como a CFEM é dividida</h2>
-        <p class="sub">Percentual do valor arrecadado que cabe a cada destino, segundo a ANM.</p>
-        <div id="regras"></div>
-        <blockquote class="uso-recursos" id="uso-recursos"></blockquote>
-      </section>
+      <details class="bloco recolhivel" id="sec-regras">
+        <summary>
+          <span class="titulo-recolhivel">
+            <h2>Como a CFEM é distribuída?</h2>
+            <span class="sub">Clique para ver a regra da ANM: quanto do valor arrecadado cabe a cada destino.</span>
+          </span>
+          <span class="seta" aria-hidden="true"></span>
+        </summary>
+        <div class="conteudo-recolhivel">
+          <div id="regras"></div>
+          <blockquote class="uso-recursos" id="uso-recursos"></blockquote>
+        </div>
+      </details>
 
       <section class="bloco" id="sec-fluxo" data-estado="carregando">
-        <h2>Para onde vai a CFEM gerada na região</h2>
+        <h2 id="titulo-fluxo">Para onde vai a CFEM gerada na região</h2>
         <p class="sub" id="sub-fluxo">A largura de cada faixa é proporcional ao valor. Passe o mouse ou toque para ver os números.</p>
         <div class="grafico" id="g-fluxo" role="img" aria-label="Diagrama de fluxo do município de origem para cada destino"></div>
       </section>
@@ -163,7 +170,7 @@
             <label><input type="radio" name="origem" value="soma" checked><span>As duas</span></label>
             <label><input type="radio" name="origem" value="Parauapebas"><span>Parauapebas</span></label>
             <label><input type="radio" name="origem" value="Canaã dos Carajás"><span>Canaã</span></label>
-            <label><input type="radio" name="origem" value="regiao"><span>Região</span></label>
+            <label><input type="radio" name="origem" value="regiao"><span>Região de Integração do Carajás</span></label>
           </div>
         </div>
         <div class="grafico" id="g-destinos" role="img" aria-label="Barras empilhadas por ano e destino"></div>
@@ -210,7 +217,7 @@
       </section>
 
       <footer class="rodape">
-        <p>Fonte: <a href="https://dadosabertos.anm.gov.br/CFEM/" target="_blank" rel="noopener">Agência Nacional de Mineração, dados abertos da CFEM</a> (arrecadação) e regra de distribuição da ANM (Lei 13.540/2017). Valores estimados e nominais, sem correção pela inflação.</p>
+        <p>Fonte: <a href="https://www.gov.br/anm/pt-br" target="_blank" rel="noopener">Agência Nacional de Mineração</a> (arrecadação) e regra de distribuição da ANM (Lei 13.540/2017). Valores estimados e nominais, sem correção pela inflação.</p>
       </footer>
     </main>
   </div>

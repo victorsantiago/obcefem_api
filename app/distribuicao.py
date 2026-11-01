@@ -21,7 +21,7 @@ from app.dominio import (CORES, DEMAIS, DESTINOS, FOCO, PARCELAS_UNIAO, REGRA_AT
 from app.repositorio import Dados
 
 BASE = "arrecadacao"
-SELECAO = "Municípios selecionados da região"
+SELECAO = "Região de Integração do Carajás"
 
 
 # ============================================================================ percentuais

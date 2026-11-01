@@ -107,7 +107,7 @@ def info_anos(dados: Dados, f: Filtros) -> list[dict]:
 
 
 def descricao_media(f: Filtros) -> str:
-    base = ("todos os municípios (região 12, PA 144, BR 5.570)" if f.denominador == "todos"
+    base = ("todos os municípios (Região de Integração do Carajás 12, PA 144 e Brasil 5.570)" if f.denominador == "todos"
             else "municípios com registro no período")
     return f"média = total ÷ {base}" + (", sem Canaã e Parauapebas" if f.excluir_foco_das_medias else "")
 

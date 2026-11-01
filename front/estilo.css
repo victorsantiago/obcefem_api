@@ -290,8 +290,32 @@ main { padding: 32px clamp(16px, 3vw, 44px) 48px; min-width: 0; outline: none; }
 .uso-recursos p { margin: 0 0 6px; font-size: .88rem; color: var(--ink-2); }
 .uso-recursos cite { font-size: .78rem; color: var(--muted); font-style: normal; }
 
+/* bloco que abre e fecha (regras de distribuição) */
+.recolhivel { padding-bottom: 20px; }
+.recolhivel summary { display: flex; justify-content: space-between; align-items: center; gap: 16px; cursor: pointer; list-style: none; }
+.recolhivel summary::-webkit-details-marker { display: none; }
+.recolhivel .titulo-recolhivel { display: grid; gap: 4px; }
+.recolhivel .titulo-recolhivel .sub { margin: 0; }
+.recolhivel[open] .titulo-recolhivel .sub { display: none; }
+.recolhivel .seta {
+  flex: none; width: 34px; height: 34px; border: 1px solid var(--rule); border-radius: 50%; position: relative; background: var(--surface-2);
+}
+.recolhivel .seta::before {      /* "V" fechado, "^" aberto */
+  content: ""; position: absolute; left: 50%; top: 50%; width: 9px; height: 9px;
+  border-right: 2px solid var(--ink-2); border-bottom: 2px solid var(--ink-2);
+  transform: translate(-50%, -70%) rotate(45deg); transition: transform .2s;
+}
+.recolhivel[open] .seta::before { transform: translate(-50%, -30%) rotate(-135deg); }
+.recolhivel summary:hover .seta { border-color: var(--ink-2); }
+.recolhivel .conteudo-recolhivel { margin-top: 14px; }
+
 .cabecalho-bloco { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px 20px; flex-wrap: wrap; }
 .segmentado.compacto { grid-template-columns: repeat(4, auto); min-width: min(100%, 360px); }
+@media (max-width: 640px) {      /* no celular, 2 × 2: "Região de Integração do Carajás" não cabe numa linha com os outros */
+  .segmentado.compacto { grid-template-columns: 1fr 1fr; width: 100%; }
+  .segmentado.compacto label:nth-child(3) span { border-left: 0; }
+  .segmentado.compacto label:nth-child(n+3) span { border-top: 1px solid var(--rule); }
+}
 .segmentado.compacto span { padding: 6px 12px; font-size: .82rem; }
 .dupla.interna { gap: 20px; }
 .dupla.interna h3 { font-size: .9rem; font-weight: 600; color: var(--ink-2); margin: 6px 0 0; }
