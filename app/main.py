@@ -19,6 +19,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import agendador, config
+from app import distribuicao
 from app.analises import Filtros, calcular, filtrar, metadados, notas
 from app.dominio import MAPA_MUN, REGIAO_CARAJAS, norm
 from app.leitura import grupo_substancia
@@ -86,6 +87,8 @@ def obter_filtros(
         "com_registro", description="Divisor das médias PA/BR: municípios com registro no período, ou todos (PA 144 · BR 5.570)"),
     excluir_foco_das_medias: bool = Query(False, description="Tirar Canaã e Parauapebas das médias PA/BR"),
     top_n: int = Query(10, ge=1, le=50, description="Itens em substâncias e titulares"),
+    regra: Literal["vigente", "atual"] = Query(
+        "vigente", description="Distribuição: lei vigente em cada ano, ou a regra atual (60/15/15/10) em todos os anos"),
 ) -> Filtros:
     if base not in dados.regiao:
         raise HTTPException(400, detail=f"Base '{base}' não carregada. Disponíveis: {dados.bases}")
@@ -118,7 +121,7 @@ def obter_filtros(
     return Filtros(base=base, ano_inicio=a_ini, ano_fim=a_fim, mes_inicio=mes_inicio, mes_fim=mes_fim,
                    substancias=tuple(sorted(set(subst))), agrupar_substancias=agrupar_substancias,
                    tipo_titular=tipo_titular, municipios=tuple(munis), denominador=denominador,
-                   excluir_foco_das_medias=excluir_foco_das_medias, top_n=top_n)
+                   excluir_foco_das_medias=excluir_foco_das_medias, top_n=top_n, regra=regra)
 
 
 def _resposta(nome: str, dados: Dados, f: Filtros) -> dict:
@@ -192,7 +195,49 @@ def exportar_csv(dados: Dados = Depends(obter_dados), f: Filtros = Depends(obter
                              headers={"Content-Disposition": f'attachment; filename="{nome}"'})
 
 
+# ============================================================================ distribuição
+dist = APIRouter(prefix="/api/v1/distribuicao", tags=["distribuição"])
+
+
+@dist.get("/regras", summary="Percentuais de cada destino (nota da ANM) e regra anterior a 2018")
+def dist_regras():
+    return distribuicao.regras()
+
+
+def _rota_dist(nome: str, resumo: str):
+    def handler(dados: Dados = Depends(obter_dados), f: Filtros = Depends(obter_filtros)):
+        try:
+            resultado = distribuicao.calcular(nome, dados, f)
+        except ValueError as e:
+            raise HTTPException(400, detail=str(e))
+        return {"filtros": f.como_dict(), "versao_dados": dados.versao, "notas": distribuicao.notas(dados, f),
+                "dados": resultado}
+    handler.__name__ = f"distribuicao_{nome}"
+    dist.add_api_route("/" + nome.replace("_", "-"), handler, methods=["GET"], summary=resumo)
+
+
+_rota_dist("indicadores", "Arrecadado e parcela de cada destino em Parauapebas, Canaã e na região; cota municipal × médias")
+_rota_dist("fluxo", "Município de origem -> destinos -> parcelas da União (diagrama de Sankey)")
+_rota_dist("destinos_anual", "Parcela de cada destino por ano (as duas cidades, cada uma e a região)")
+_rota_dist("comparacao_medias", "Cota municipal de Parauapebas e Canaã × média por município da região, do Pará e do Brasil")
+_rota_dist("peso_nos_repasses", "Participação das duas cidades na cota estadual do Pará e nas parcelas nacionais")
+_rota_dist("ranking", "Ranking da região pela cota municipal estimada")
+_rota_dist("tabela_destinos", "Município × destino no período, com médias de referência")
+_rota_dist("tabela_resumo", "Cota municipal estimada: município × ano")
+_rota_dist("painel", "Todas as visualizações da distribuição numa chamada só")
+
+
+@dist.get("/exportar.csv", summary="Município × ano × destino em CSV (; e vírgula decimal)")
+def dist_exportar_csv(dados: Dados = Depends(obter_dados), f: Filtros = Depends(obter_filtros)):
+    buf = io.StringIO()
+    distribuicao.exportar(dados, f).to_csv(buf, sep=";", decimal=",", index=False)
+    nome = f"cfem_distribuicao_carajas_{f.ano_inicio}_{f.ano_fim}.csv"
+    return StreamingResponse(iter(["\ufeff" + buf.getvalue()]), media_type="text/csv; charset=utf-8",
+                             headers={"Content-Disposition": f'attachment; filename="{nome}"'})
+
+
 app.include_router(api)
+app.include_router(dist)
 
 # Front (painel web) servido na raiz. Para hospedar o front em outro lugar, basta copiar a pasta
 # front/ e abrir index.html?api=https://seu-servidor/api/v1

@@ -26,6 +26,12 @@
   --c-contexto: #c9c8c2;
   --c-incompleto: rgba(105, 112, 122, .13);
 
+  /* destinos da CFEM (página de distribuição) — paleta validada para daltonismo no claro e no escuro */
+  --c-dest-municipio: #0f8a72;
+  --c-dest-estado: #b88400;
+  --c-dest-afetados: #c0407a;
+  --c-dest-uniao: #3d6fb0;
+
   --seq-1: #cde2fb; --seq-2: #9ec5f4; --seq-3: #6da7ec; --seq-4: #3987e5;
   --seq-5: #256abf; --seq-6: #184f95; --seq-7: #0d366b;
 
@@ -42,6 +48,7 @@
     --marca: #7c914b; --marca-texto: #10140a;
     --c-parauapebas: #3987e5; --c-canaa: #d95926; --c-demais: #74736d; --c-soma: #d9d7d0;
     --c-media-rc: #9085e9; --c-media-pa: #199e70; --c-media-br: #a19f98; --c-contexto: #4a4b50; --c-incompleto: rgba(155, 155, 148, .14);
+    --c-dest-municipio: #1f9a80; --c-dest-estado: #b3850c; --c-dest-afetados: #d65a92; --c-dest-uniao: #5a86cc;
     --seq-1: #16314f; --seq-2: #1c4775; --seq-3: #225d9b; --seq-4: #2a78d6;
     --seq-5: #5598e7; --seq-6: #86b6ef; --seq-7: #cde2fb;
   }
@@ -53,6 +60,7 @@
   --marca: #7c914b; --marca-texto: #10140a;
   --c-parauapebas: #3987e5; --c-canaa: #d95926; --c-demais: #74736d; --c-soma: #d9d7d0;
   --c-media-rc: #9085e9; --c-media-pa: #199e70; --c-media-br: #a19f98; --c-contexto: #4a4b50; --c-incompleto: rgba(155, 155, 148, .14);
+    --c-dest-municipio: #1f9a80; --c-dest-estado: #b3850c; --c-dest-afetados: #d65a92; --c-dest-uniao: #5a86cc;
   --seq-1: #16314f; --seq-2: #1c4775; --seq-3: #225d9b; --seq-4: #2a78d6;
   --seq-5: #5598e7; --seq-6: #86b6ef; --seq-7: #cde2fb;
 }
@@ -235,6 +243,59 @@ main { padding: 32px clamp(16px, 3vw, 44px) 48px; min-width: 0; outline: none; }
 .tabela .barra span { position: relative; }
 
 .rodape { color: var(--muted); font-size: .8rem; margin-top: 12px; }
+
+/* ============================================================
+   Navegação entre as páginas
+   ============================================================ */
+.paginas { display: flex; gap: 4px; margin: -8px 0 24px; border-bottom: 1px solid var(--rule); overflow-x: auto; }
+.paginas a {
+  padding: 8px 12px 10px; text-decoration: none; color: var(--muted); font-weight: 600; font-size: .9rem;
+  border-bottom: 3px solid transparent; margin-bottom: -1px; white-space: nowrap;
+}
+.paginas a:hover { color: var(--ink); }
+.paginas a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--marca); }
+.paginas a::first-letter { text-transform: uppercase; }
+@media (max-width: 520px) { .paginas .longo { display: none; } }
+
+/* ============================================================
+   Página de distribuição
+   ============================================================ */
+.manchete .dest { text-decoration: underline; text-decoration-thickness: .14em; text-underline-offset: .16em; text-decoration-color: var(--cor); }
+.cifra .rotulo .pp { color: var(--ink-2); font-weight: 600; }
+.cifras-grade.cinco .cifra.origem { grid-column: 1 / -1; }   /* celular: arrecadado em cima, destinos 2 a 2 */
+@media (min-width: 901px) {
+  .cifras-grade.cinco { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .cifras-grade.cinco .cifra { grid-column: span 3; }
+  .cifras-grade.cinco .cifra.origem { grid-column: 1 / -1; }
+}
+@media (min-width: 1400px) {
+  .cifras-grade.cinco { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .cifras-grade.cinco .cifra, .cifras-grade.cinco .cifra.origem { grid-column: auto; }
+}
+
+.legenda-dest { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .82rem; color: var(--ink-2); margin: 4px 0 14px; }
+.legenda-dest i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.regra { margin-bottom: 16px; }
+.regra.fora { opacity: .55; }
+.regra-cab { font-size: .85rem; margin-bottom: 6px; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.regra-cab span { color: var(--muted); }
+.selo { font-style: normal; font-size: .72rem; font-weight: 600; color: var(--marca); border: 1px solid currentColor; border-radius: 999px; padding: 0 8px; }
+.barra-regra { display: flex; height: 30px; border-radius: 4px; overflow: hidden; gap: 2px; background: var(--surface); }
+.barra-regra .seg {
+  display: grid; place-items: center; color: #fff; font-size: .78rem; font-weight: 700; min-width: 0; overflow: hidden;
+  white-space: nowrap; flex-grow: 0; flex-shrink: 1;
+}
+.regra .dica { margin-top: 6px; }
+.uso-recursos { margin: 18px 0 4px; padding: 12px 16px; border-left: 3px solid var(--marca); background: var(--surface-2); border-radius: 0 var(--raio) var(--raio) 0; max-width: 90ch; }
+.uso-recursos p { margin: 0 0 6px; font-size: .88rem; color: var(--ink-2); }
+.uso-recursos cite { font-size: .78rem; color: var(--muted); font-style: normal; }
+
+.cabecalho-bloco { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px 20px; flex-wrap: wrap; }
+.segmentado.compacto { grid-template-columns: repeat(4, auto); min-width: min(100%, 360px); }
+.segmentado.compacto span { padding: 6px 12px; font-size: .82rem; }
+.dupla.interna { gap: 20px; }
+.dupla.interna h3 { font-size: .9rem; font-weight: 600; color: var(--ink-2); margin: 6px 0 0; }
+.tabela th .tag { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: 1px; }
 
 .veu { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 30; }
 

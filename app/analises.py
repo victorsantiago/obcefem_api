@@ -37,6 +37,7 @@ class Filtros:
     denominador: str = "com_registro"          # "com_registro" | "todos"
     excluir_foco_das_medias: bool = False
     top_n: int = 10
+    regra: str = "vigente"                     # distribuição: "vigente" (lei de cada ano) | "atual" (regra de hoje)
 
     def como_dict(self) -> dict:
         d = asdict(self)

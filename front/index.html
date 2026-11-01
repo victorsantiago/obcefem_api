@@ -12,6 +12,7 @@
   <link rel="icon" type="image/png" href="img/favicon.png">
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
   <script src="vendor/plotly.min.js" defer></script>
+  <script src="comum.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -130,6 +131,11 @@
         <span id="resumo-movel"></span>
       </div>
 
+      <nav class="paginas" aria-label="Páginas">
+        <a href="./" data-pagina="arrecadacao" data-arquivo="./" aria-current="page"><span class="longo">Análise da </span>arrecadação</a>
+        <a href="distribuicao.html" data-pagina="distribuicao" data-arquivo="distribuicao.html"><span class="longo">Análise da </span>distribuição</a>
+      </nav>
+
       <header class="topo">
         <p class="manchete" id="manchete" aria-live="polite">Carregando os dados da CFEM…</p>
         <ul class="notas" id="notas"></ul>
@@ -196,7 +202,7 @@
       </section>
 
       <footer class="rodape">
-        <p>Fonte: <a href="https://www.gov.br/anm/pt-br" target="_blank" rel="noopener">Agência Nacional de Mineração</a>. Valores nominais, sem correção pela inflação.</p>
+        <p>Fonte: <a href="https://dadosabertos.anm.gov.br/CFEM/" target="_blank" rel="noopener">Agência Nacional de Mineração, dados abertos da CFEM</a>. Valores nominais, sem correção pela inflação.</p>
       </footer>
     </main>
   </div>

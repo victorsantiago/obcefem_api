@@ -12,6 +12,9 @@ os.environ.setdefault("CFEM_PASTA_CACHE", tempfile.mkdtemp(prefix="cfem_cache_")
 os.environ.setdefault("CFEM_ATUALIZAR_A_CADA_HORAS", "0")
 os.environ.setdefault("CFEM_HORARIO_ATUALIZACAO", "")
 os.environ.setdefault("CFEM_TOKEN_ADMIN", "segredo-teste")
+# Os valores esperados nos testes são do arquivo 2022–2026; uma pasta vazia evita anexar o histórico
+# 2003–2021 que estiver em dados_processados/historico.
+os.environ.setdefault("CFEM_PASTA_PRE_PROCESSADO", tempfile.mkdtemp(prefix="cfem_pre_"))
 
 
 @pytest.fixture(scope="session")

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Distribuição da CFEM · Observatório da CFEM</title>
+  <meta name="description" content="Para onde vai a CFEM gerada em Parauapebas e Canaã dos Carajás: município produtor, estado, municípios afetados e União, comparados à região de Carajás, ao Pará e ao Brasil.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilo.css">
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <script src="vendor/plotly.min.js" defer></script>
+  <script src="comum.js" defer></script>
+  <script src="distribuicao.js" defer></script>
+</head>
+<body>
+  <a class="pular" href="#conteudo">Ir para os gráficos</a>
+
+  <div class="estrutura">
+    <!-- ============================== Filtros ============================== -->
+    <aside class="lateral" id="lateral" aria-label="Filtros">
+      <div class="marca">
+        <div class="logo">
+          <img src="img/logo-observatorio-cfem.png" width="640" height="235" alt="Observatório da CFEM">
+          <span>A partir dos dados da ANM</span>
+        </div>
+        <button class="fechar-lateral" type="button" aria-label="Fechar filtros" data-acao="fechar-filtros">×</button>
+      </div>
+
+      <form id="filtros" autocomplete="off">
+        <fieldset>
+          <legend>Regra de distribuição</legend>
+          <label class="marcar"><input type="radio" name="regra" value="vigente" checked> A lei em vigor em cada ano</label>
+          <label class="marcar"><input type="radio" name="regra" value="atual"> A regra atual em todos os anos (simulação)</label>
+          <p class="dica">Até 2017: 65% município, 23% estado, 12% União. Desde 2018: 60% município produtor, 15% estado, 15% municípios afetados, 10% União.</p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Período</legend>
+          <div class="par">
+            <label>De <select name="ano_inicio"></select></label>
+            <label>até <select name="ano_fim"></select></label>
+          </div>
+          <div class="par" id="grupo-meses">
+            <label>Meses <select name="mes_inicio"></select></label>
+            <label>a <select name="mes_fim"></select></label>
+          </div>
+          <div class="aviso-parcial" id="aviso-parcial" hidden>
+            <p></p>
+            <button type="button" class="botao-texto" data-acao="meses-completos"></button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Substâncias</legend>
+          <input type="search" id="busca-substancia" placeholder="Digite para encontrar, ex.: argila" aria-label="Buscar substância" aria-describedby="dica-substancias">
+          <div class="lista-marcar" id="lista-substancias" role="group" aria-label="Substâncias"></div>
+          <div class="linha-acoes">
+            <span id="resumo-substancias">Todas</span>
+            <span class="botoes">
+              <button type="button" class="botao-texto" data-acao="marcar-substancias">Marcar todas</button>
+              <button type="button" class="botao-texto" data-acao="limpar-substancias">Limpar seleção</button>
+            </span>
+          </div>
+          <p class="dica alerta-dica" id="dica-substancias" hidden>Marque ao menos uma substância. Digite o nome acima para encontrá-la na lista.</p>
+          <label class="marcar"><input type="checkbox" name="agrupar_substancias" checked> Somar “minério de X” com “X”</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Titular</legend>
+          <select name="tipo_titular" aria-label="Tipo de titular">
+            <option value="Todos">Pessoas físicas e jurídicas</option>
+            <option value="PJ">Só pessoas jurídicas</option>
+            <option value="PF">Só pessoas físicas</option>
+          </select>
+        </fieldset>
+
+        <fieldset>
+          <legend>Municípios da comparação</legend>
+          <div class="lista-marcar curta" id="lista-municipios" role="group" aria-label="Municípios"></div>
+          <div class="linha-acoes">
+            <span id="resumo-municipios">Os 12 municípios</span>
+            <button type="button" class="botao-texto" data-acao="todos-municipios">Marcar todos</button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Médias de referência (região, Pará e Brasil)</legend>
+          <label class="marcar"><input type="radio" name="denominador" value="com_registro" checked> Só municípios com arrecadação no período</label>
+          <label class="marcar"><input type="radio" name="denominador" value="todos"> Todos os municípios (região 12, PA 144, Brasil 5.570)</label>
+          <label class="marcar"><input type="checkbox" name="excluir_foco_das_medias"> Tirar Canaã e Parauapebas das médias</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Exibição</legend>
+          <label class="marcar"><input type="checkbox" name="escala" value="log"> Escala logarítmica</label>
+        </fieldset>
+
+        <div class="acoes-finais">
+          <a class="botao" id="link-csv" href="#" download>Baixar distribuição filtrada (CSV)</a>
+          <a class="botao secundario" id="link-json" href="#" target="_blank" rel="noopener">Abrir todos os dados (JSON)</a>
+          <button type="button" class="botao-texto" data-acao="restaurar">Restaurar filtros</button>
+        </div>
+      </form>
+
+      <footer class="estado-dados" id="estado-dados" aria-live="polite">
+        <p id="texto-estado">Conectando à API…</p>
+        <details>
+          <summary>Atualizar agora</summary>
+          <form id="form-admin">
+            <label>Token de administração <input type="password" name="token" required></label>
+            <label class="marcar"><input type="checkbox" name="forcar"> Reprocessar mesmo sem mudanças</label>
+            <button class="botao secundario" type="submit">Verificar o portal da ANM</button>
+            <p class="dica" id="msg-admin" role="status"></p>
+          </form>
+        </details>
+      </footer>
+    </aside>
+
+    <!-- ============================== Conteúdo ============================== -->
+    <main id="conteudo" tabindex="-1">
+      <div class="barra-movel">
+        <button type="button" class="botao secundario" data-acao="abrir-filtros" aria-controls="lateral">Filtros</button>
+        <span id="resumo-movel"></span>
+      </div>
+
+      <nav class="paginas" aria-label="Páginas">
+        <a href="./" data-pagina="arrecadacao" data-arquivo="./"><span class="longo">Análise da </span>arrecadação</a>
+        <a href="distribuicao.html" data-pagina="distribuicao" data-arquivo="distribuicao.html" aria-current="page"><span class="longo">Análise da </span>distribuição</a>
+      </nav>
+
+      <header class="topo">
+        <p class="manchete" id="manchete" aria-live="polite">Carregando os dados da CFEM…</p>
+        <ul class="notas" id="notas"></ul>
+      </header>
+
+      <section class="cifras" id="sec-indicadores" aria-label="Indicadores" data-estado="carregando">
+        <div class="cifras-grade cinco" id="cifras"></div>
+      </section>
+
+      <section class="bloco" id="sec-regras">
+        <h2>Como a CFEM é dividida</h2>
+        <p class="sub">Percentual do valor arrecadado que cabe a cada destino, segundo a ANM.</p>
+        <div id="regras"></div>
+        <blockquote class="uso-recursos" id="uso-recursos"></blockquote>
+      </section>
+
+      <section class="bloco" id="sec-fluxo" data-estado="carregando">
+        <h2>Para onde vai a CFEM gerada na região</h2>
+        <p class="sub" id="sub-fluxo">A largura de cada faixa é proporcional ao valor. Passe o mouse ou toque para ver os números.</p>
+        <div class="grafico" id="g-fluxo" role="img" aria-label="Diagrama de fluxo do município de origem para cada destino"></div>
+      </section>
+
+      <section class="bloco" id="sec-destinos" data-estado="carregando">
+        <div class="cabecalho-bloco">
+          <div>
+            <h2>Destinos ano a ano</h2>
+            <p class="sub" id="sub-destinos"></p>
+          </div>
+          <div class="segmentado compacto" role="radiogroup" aria-label="Origem da CFEM" id="origem-destinos">
+            <label><input type="radio" name="origem" value="soma" checked><span>As duas</span></label>
+            <label><input type="radio" name="origem" value="Parauapebas"><span>Parauapebas</span></label>
+            <label><input type="radio" name="origem" value="Canaã dos Carajás"><span>Canaã</span></label>
+            <label><input type="radio" name="origem" value="regiao"><span>Região</span></label>
+          </div>
+        </div>
+        <div class="grafico" id="g-destinos" role="img" aria-label="Barras empilhadas por ano e destino"></div>
+      </section>
+
+      <section class="bloco" id="sec-medias" data-estado="carregando">
+        <h2>Cota municipal comparada às médias da região, do Pará e do Brasil</h2>
+        <p class="sub" id="sub-medias"></p>
+        <div class="grafico" id="g-medias" role="img" aria-label="Barras agrupadas por ano em escala logarítmica"></div>
+        <div class="tabela-rolagem"><table class="tabela" id="t-medias"></table></div>
+      </section>
+
+      <section class="bloco" id="sec-peso" data-estado="carregando">
+        <h2>Peso de Parauapebas e Canaã nos repasses</h2>
+        <p class="sub" id="sub-peso"></p>
+        <div class="dupla interna">
+          <div>
+            <h3>Na cota do Governo do Pará</h3>
+            <div class="grafico" id="g-peso-estado" role="img" aria-label="Linhas: participação na cota estadual do Pará"></div>
+          </div>
+          <div>
+            <h3>No fundo nacional dos municípios afetados</h3>
+            <div class="grafico" id="g-peso-afetados" role="img" aria-label="Linhas: participação no fundo dos municípios afetados"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bloco" id="sec-ranking" data-estado="carregando">
+        <h2>Ranking da região pela cota municipal</h2>
+        <p class="sub" id="sub-ranking"></p>
+        <div class="grafico" id="g-ranking" role="img" aria-label="Barras horizontais por município"></div>
+      </section>
+
+      <section class="bloco" id="sec-tabela-destinos" data-estado="carregando">
+        <h2>Município × destino</h2>
+        <p class="sub" id="sub-tabela-destinos"></p>
+        <div class="tabela-rolagem"><table class="tabela" id="t-destinos"></table></div>
+      </section>
+
+      <section class="bloco" id="sec-resumo" data-estado="carregando">
+        <h2>Cota municipal por ano</h2>
+        <p class="sub" id="sub-resumo"></p>
+        <div class="tabela-rolagem"><table class="tabela" id="t-resumo"></table></div>
+      </section>
+
+      <footer class="rodape">
+        <p>Fonte: <a href="https://dadosabertos.anm.gov.br/CFEM/" target="_blank" rel="noopener">Agência Nacional de Mineração, dados abertos da CFEM</a> (arrecadação) e regra de distribuição da ANM (Lei 13.540/2017). Valores estimados e nominais, sem correção pela inflação.</p>
+      </footer>
+    </main>
+  </div>
+  <div class="veu" data-acao="fechar-filtros" hidden></div>
+</body>
+</html>

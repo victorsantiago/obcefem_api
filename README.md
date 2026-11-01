@@ -1,6 +1,6 @@
 # API CFEM — Canaã dos Carajás e Parauapebas × Região de Carajás
 
-Backend em Python (FastAPI) que baixa os CSVs de **https://dadosabertos.anm.gov.br/CFEM/** e entrega os dados prontos para o front montar os gráficos.
+Backend em Python (FastAPI) que baixa os CSVs de **https://dadosabertos.anm.gov.br/CFEM/**, aplica a mesma lógica do painel do Colab e entrega os dados prontos para o front montar os gráficos.
 
 - **Foco:** Parauapebas e Canaã dos Carajás.
 - **Comparação:** os 12 municípios da região de Carajás e a **média por município do Pará e do Brasil**.
@@ -19,7 +19,14 @@ A pasta `front/` traz o painel pronto (HTML, CSS e JavaScript puro, sem etapa de
 - **Tema:** claro ou escuro, conforme o sistema.
 - **Gráficos:** Plotly incluído em `front/vendor/`, sem depender de CDN. Cada gráfico baixa como PNG em alta resolução pelo menu do próprio gráfico.
 
-Para hospedar o front em outro servidor, copie a pasta `front/` e abra `index.html?api=https://seu-servidor/api/v1`, ou defina `window.CFEM_API` antes de carregar `app.js`. Se for em outro domínio, libere esse domínio em `CFEM_CORS_ORIGENS`.
+São duas páginas, com abas no topo que levam junto os filtros em comum:
+
+- **Análise da arrecadação** (`index.html` + `app.js`): o que está descrito acima.
+- **Análise da distribuição** (`distribuicao.html` + `distribuicao.js`): para onde vai a CFEM arrecadada, pela repartição da nota da ANM. Traz manchete e cinco cifras (arrecadado, município produtor, Governo do Pará, municípios afetados e União com ANM/FNDCT/CETEM/IBAMA), o quadro das regras com a restrição de uso dos recursos, diagrama de fluxo (Sankey) do município de origem até cada destino, destinos ano a ano (as duas cidades, cada uma ou a região), cota municipal × médias da região/PA/BR, peso das duas cidades na cota do Governo do Pará e no fundo nacional dos afetados, ranking pela cota municipal, tabela município × destino e cota municipal por ano. O filtro "Regra de distribuição" escolhe entre a lei em vigor em cada ano e a regra atual aplicada a todos os anos (simulação).
+
+O código comum às duas páginas (filtros, URL, carga das seções, tema dos gráficos) está em `comum.js`; cada página define `window.PAGINA` com as suas seções.
+
+Para hospedar o front em outro servidor, copie a pasta `front/` e abra `index.html?api=https://seu-servidor/api/v1`, ou defina `window.CFEM_API` antes de carregar os scripts. Se for em outro domínio, libere esse domínio em `CFEM_CORS_ORIGENS`.
 
 ## Rodando
 
@@ -171,6 +178,19 @@ const traces = [
 Plotly.newPlot("grafico", traces, { barmode: "group", yaxis: { type: "log" }, separators: ",." });
 ```
 
+## Distribuição (`/api/v1/distribuicao`)
+
+Estimativa: **valor arrecadado × percentual de cada destino** na regra do ano de referência (`app/dominio.py`, `REGRAS_DISTRIBUICAO`):
+
+| Período | Município produtor | Estado | Municípios afetados | União |
+|---|---|---|---|---|
+| Até 2017 (Lei 8.001/1990, redação da Lei 9.993/2000) | 65% | 23% | – | 12% (DNPM/ANM 9,8%, FNDCT 2%, IBAMA 0,2%) |
+| Desde 2018 (Lei 13.540/2017) | 60% | 15% | 15% | 10% (ANM 7%, FNDCT 1%, CETEM 1,8%, IBAMA 0,2%) |
+
+Aceita os mesmos filtros das outras rotas (sem `base`, que é sempre a arrecadação) e mais `regra=vigente|atual`. Rotas: `regras`, `indicadores`, `fluxo`, `destinos-anual`, `comparacao-medias` (cota municipal), `peso-nos-repasses`, `ranking` (cota municipal), `tabela-destinos`, `tabela-resumo` (cota municipal), `painel` e `exportar.csv`.
+
+Por que estimar em vez de ler o `CFEM_Distribuicao.csv` da ANM: o arquivo publicado em 01/11/2026 estava incompleto (a cota municipal registrada em 2023–2025 era só ~15% do arrecadado, quando deveria ser 60%; cotas estaduais e de afetados só aparecem em 2019–2022) e não traz a parcela da União. Quando a ANM normalizar a publicação, o repasse efetivo pode entrar ao lado da estimativa, para comparar as duas.
+
 ## Testes
 
 ```bash
@@ -182,7 +202,7 @@ Os testes conferem os totais com somas feitas direto no CSV, os filtros, as vali
 
 ## Observações sobre os dados
 
-- **Arrecadação** é o valor pago pelas mineradoras referente à produção do município, não o repasse à prefeitura (a cota do município produtor é 60%, Lei 13.540/2017). O repasse está em `CFEM_Distribuicao.csv`, que pode ser incluído com a mesma estrutura.
+- **Arrecadação** é o valor pago pelas mineradoras referente à produção do município, não o repasse à prefeitura (a cota do município produtor é 60%, Lei 13.540/2017). A página de distribuição estima o repasse pela regra legal (ver acima).
 - **Autuação** é o valor inicial do auto de cobrança, não valor pago.
 - O último ano da arrecadação é parcial. A API detecta o último mês completo comparando o volume de registros com a mediana dos anos anteriores (ver `cobertura_arrecadacao` em `/meta`).
 - As **médias PA/BR** usam o país inteiro (todas as UFs do CSV), com os mesmos filtros de período, substância e titular. Linhas sem município nem UF ficam de fora (no arquivo 2022–2026, 51 linhas, cerca de R$ 0,9 mi).
