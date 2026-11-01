@@ -148,3 +148,40 @@ def test_modo_pre_processado_vercel(tmp_path, monkeypatch):
     monkeypatch.setattr(config, "PASTA_PRE_PROCESSADO", tmp_path / "inexistente")
     sem_dados.garantir()
     assert not sem_dados.pronto and "gerar_dados.py" in sem_dados.ultimo_erro
+
+
+def test_verificacao_do_historico_e_trava_diaria(tmp_path):
+    """Arquivo incompleto (meses faltando) não passa na carga do histórico, e queda de valor
+    em ano encerrado aciona a trava da atualização diária."""
+    import importlib.util
+    import pandas as pd
+
+    def carregar(nome):
+        spec = importlib.util.spec_from_file_location(nome, os.path.join(os.path.dirname(__file__), "..", "scripts", f"{nome}.py"))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    hist = carregar("gerar_historico")
+    linhas = [{"Ano": a, "Mes": m, "Valor": 1.0} for a in (2019, 2020) for m in range(1, 13) for _ in range(10)]
+    completo = pd.DataFrame(linhas)
+    assert hist.verificar(completo, [2019, 2020]) == []
+    truncado = completo[~((completo["Ano"] == 2020) & (completo["Mes"] > 6))]
+    assert any("2020: faltam os meses" in p for p in hist.verificar(truncado, [2019, 2020]))
+    assert any("2021: nenhum registro" in p for p in hist.verificar(completo, [2019, 2020, 2021]))
+
+    diario = carregar("gerar_dados")
+    pasta = tmp_path / "publicado"
+    pasta.mkdir()
+    pd.DataFrame({"Ano": [2023, 2024, 2025], "Valor": [100.0, 100.0, 50.0]}).to_parquet(pasta / "nacional_arrecadacao.parquet")
+    pd.DataFrame({"Ano": [2023, 2024, 2025]}).to_parquet(pasta / "regiao_arrecadacao.parquet")
+
+    class Novo:
+        cobertura = {"ultimo_ano": 2025}
+        def __init__(self, valores):
+            self.nacional = {"arrecadacao": pd.DataFrame({"Ano": [2023, 2024, 2025], "Valor": valores})}
+            self.regiao = {"arrecadacao": pd.DataFrame({"Ano": [2023, 2024, 2025]})}
+
+    assert diario.checar_contra_publicado(Novo([100.0, 101.0, 10.0]), pasta) == []      # 2025 é o ano corrente
+    problemas = diario.checar_contra_publicado(Novo([100.0, 60.0, 50.0]), pasta)
+    assert len(problemas) == 1 and problemas[0].startswith("2024")

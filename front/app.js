@@ -578,7 +578,8 @@ function desenharMensal(resp, fl) {
       y0: 0, y1: 1, fillcolor: css("--c-incompleto"), line: { width: 0 }, layer: "below" });
   }
   plotar("g-mensal", traces, layout({ height: 380, hovermode: "x unified", shapes,
-    xaxis: { type: "date", tickformat: "%b<br>%Y", dtick: "M3", hoverformat: "%b/%Y" }, yaxis: eixoValor(log) }));
+    xaxis: { type: "date", tickformat: x.length > 48 ? "%Y" : "%b<br>%Y", dtick: x.length > 48 ? "M12" : "M3", hoverformat: "%b/%Y" },
+    yaxis: eixoValor(log) }));
 }
 
 function desenharSubstancias(resp, fl) {

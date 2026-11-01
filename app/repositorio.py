@@ -45,6 +45,7 @@ class Repositorio:
         self.ultima_verificacao: str | None = None
         self.proxima_atualizacao: str | None = None
         self.ultimo_resultado: dict | None = None
+        self.dados_sem_historico: Dados | None = None   # só o período corrente (é o que se grava)
 
     # ------------------------------------------------------------------ acesso
     @property
@@ -66,7 +67,7 @@ class Repositorio:
             if self._dados is not None:
                 return
             try:
-                self._dados = carregar_pre_processado(config.PASTA_PRE_PROCESSADO)
+                self._dados = com_historico(carregar_pre_processado(config.PASTA_PRE_PROCESSADO))
                 self.estado, self.ultimo_erro = "pronto", None
             except Exception as erro:  # noqa: BLE001
                 log.exception("Falha ao ler os dados pré-processados")
@@ -97,7 +98,7 @@ class Repositorio:
             versao = versao_conjunto(fontes)
             resumo = {"arquivos": {f.nome: {"origem": f.origem, "conteudo_mudou": f.conteudo_mudou} for f in fontes},
                       "falhas_download": [f.nome for f in fontes if f.origem == "cache_falha_download"]}
-            if not forcar and self._dados is not None and self._dados.versao == versao:
+            if not forcar and self.dados_sem_historico is not None and self.dados_sem_historico.versao == versao:
                 self.estado = "pronto"
                 return {"status": "sem_mudancas", "versao": versao, **resumo}
 
@@ -105,7 +106,8 @@ class Repositorio:
             if novo is None:
                 novo = self._processar(versao, fontes)
                 self._salvar_processado(novo)
-            self._dados = novo                      # troca atômica
+            self.dados_sem_historico = novo
+            self._dados = com_historico(novo)       # troca atômica
             self.estado, self.ultimo_erro = "pronto", None
             log.info("Dados prontos (versão %s)", versao)
             return {"status": "atualizado", "versao": versao, **resumo}
@@ -192,6 +194,28 @@ def salvar_pre_processado(d: Dados, pasta) -> bool:
     meta_path.write_text(json.dumps({"versao": d.versao, "gerado_em": d.carregado_em, "bases": d.bases,
                                      "cobertura": d.cobertura, "fontes": d.fontes}, ensure_ascii=False, indent=2))
     return True
+
+
+def pasta_historico():
+    return config.PASTA_PRE_PROCESSADO / "historico"
+
+
+def com_historico(d: Dados, pasta=None) -> Dados:
+    """Junta o histórico (2002–2021, gerado uma vez por scripts/gerar_historico.py) aos dados do período
+    corrente. Sem a pasta historico/, devolve os dados como estão."""
+    pasta = pasta or pasta_historico()
+    if not (pasta / "meta.json").exists() or "arrecadacao" not in d.regiao:
+        return d
+    meta = json.loads((pasta / "meta.json").read_text())
+    corte = int(meta["ano_fim"])
+    regiao, nacional = dict(d.regiao), dict(d.nacional)
+    for destino, arquivo in ((regiao, "regiao_arrecadacao.parquet"), (nacional, "nacional_arrecadacao.parquet")):
+        hist = pd.read_parquet(pasta / arquivo)
+        atual = destino["arrecadacao"]
+        destino["arrecadacao"] = pd.concat([hist[hist["Ano"] <= corte], atual[atual["Ano"] > corte]], ignore_index=True)
+    log.info("Histórico %s–%s anexado (versão %s)", meta["ano_inicio"], meta["ano_fim"], meta["versao"])
+    return Repositorio._montar(f"{d.versao}+{meta['versao']}", regiao, nacional, d.cobertura,
+                               d.fontes + meta.get("fontes", []), d.carregado_em)
 
 
 def carregar_pre_processado(pasta) -> Dados:

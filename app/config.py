@@ -13,9 +13,15 @@ def _lista(nome: str, padrao: list[str]) -> list[str]:
 # Portal de dados abertos da ANM
 URL_BASE = os.getenv("CFEM_URL_BASE", "https://dadosabertos.anm.gov.br/CFEM/")
 
-# Arquivos de arrecadação a carregar. Para a série histórica completa, acrescente
-# CFEM_Arrecadacao_2002_2006.csv, ..._2007_2011.csv, ..._2012_2016.csv, ..._2017_2021.csv
+# Arquivo(s) de arrecadação atualizados todo dia (o período corrente)
 ARQUIVOS_ARRECADACAO = _lista("CFEM_ARQUIVOS_ARRECADACAO", ["CFEM_Arrecadacao_2022_2026.csv"])
+
+# Períodos encerrados: processados UMA vez por scripts/gerar_historico.py e guardados em
+# dados_processados/historico/. A API junta esse histórico aos dados do período corrente.
+ARQUIVOS_HISTORICOS = _lista("CFEM_ARQUIVOS_HISTORICOS", [
+    "CFEM_Arrecadacao_2002_2006.csv", "CFEM_Arrecadacao_2007_2011.csv",
+    "CFEM_Arrecadacao_2012_2016.csv", "CFEM_Arrecadacao_2017_2021.csv",
+])
 
 # Arquivo de autuações (deixe vazio para desativar)
 ARQUIVO_AUTUACAO = os.getenv("CFEM_ARQUIVO_AUTUACAO", "CFEM_Autuacao.csv").strip()

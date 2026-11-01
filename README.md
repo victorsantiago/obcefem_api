@@ -64,6 +64,19 @@ Para colocar no ar:
 - O `pyproject.toml` diz à Vercel onde está a aplicação (`app.main:app`) e manda servir o painel pela CDN. Sem isso, o `plotly.min.js` (4,8 MB) passaria pela função, que tem limite de 4,5 MB por resposta.
 - Se o GitHub Actions não conseguir baixar do portal da ANM (alguns sites do governo bloqueiam acessos de fora do Brasil), rode `python scripts/gerar_dados.py` no seu computador e faça o commit de `dados_processados/`. O resultado é o mesmo.
 
+## Série histórica 2002–2026
+
+Os arquivos de períodos encerrados da ANM (`CFEM_Arrecadacao_2002_2006.csv` a `..._2017_2021.csv`) **não entram na atualização diária**. Eles são processados uma vez só e ficam guardados em `dados_processados/historico/`. A API junta esse histórico aos dados de 2022–2026 ao carregar.
+
+- **Gerar o histórico:** aba *Actions* → **Gerar histórico da ANM** → *Run workflow*, ou `python scripts/gerar_historico.py`.
+- **Verificação antes de gravar:** cada ano de 2002 a 2021 precisa ter os 12 meses, e nenhum mês pode ter menos de 35% da mediana de registros do próprio ano. Se o portal estiver servindo arquivos incompletos, nada é gravado e o resumo da execução mostra o problema. A opção *forcar* grava mesmo assim.
+- **Conferência:** o resumo da execução traz uma tabela com os totais por ano (Brasil, Pará, região de Carajás, Canaã + Parauapebas). Os mesmos totais ficam em `dados_processados/historico/meta.json`.
+- **Sem histórico:** se a pasta `historico/` não existir, o painel mostra só 2022–2026, como antes.
+
+### Trava de segurança na atualização diária
+
+`scripts/gerar_dados.py` compara os anos já encerrados do arquivo novo (2022–2025) com o que está publicado. Se algum ano perder mais de 2% do valor, ou a região perder registros, nada é publicado. A execução fica vermelha no GitHub (que avisa por e-mail) e o site continua com a versão anterior. Se a mudança for legítima, rode `python scripts/gerar_dados.py --forcar`.
+
 ## Atualização diária (modo servidor)
 
 A ANM regrava **todos** os arquivos de `/CFEM/` todo dia por volta das 6h (horário de Brasília), inclusive os de períodos encerrados. A data de modificação muda todo dia, mesmo quando o conteúdo é igual. A API lida com isso assim:
@@ -81,7 +94,6 @@ A ANM regrava **todos** os arquivos de `/CFEM/` todo dia por volta das 6h (horá
 
 > **Implantação:** rode **um único processo** (`--workers 1`). Cada worker teria sua própria cópia dos dados e seu próprio agendamento. Para escalar horizontalmente, separe a atualização num job (ex.: cron chamando `/admin/atualizar`) e desligue o agendamento interno com `CFEM_HORARIO_ATUALIZACAO=` vazio.
 
-Para carregar a **série histórica completa** (2002 em diante), liste os arquivos por período em `CFEM_ARQUIVOS_ARRECADACAO`. Veja `.env.example`.
 
 ## Filtros (query string, iguais em todas as rotas de visualização)
 
