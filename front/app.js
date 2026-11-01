@@ -19,6 +19,11 @@ const COR_VAR = {
   "Parauapebas": "--c-parauapebas", "Canaã dos Carajás": "--c-canaa", [DEMAIS]: "--c-demais",
   [SOMA]: "--c-soma", [REF_RC]: "--c-media-rc", [REF_PA]: "--c-media-pa", [REF_BR]: "--c-media-br",
 };
+// Ano em que o painel abre selecionado (o usuário pode escolher desde o início da série).
+// Se a base não tiver esse ano, usa o mais próximo disponível.
+const ANO_INICIAL_PADRAO = 2022;
+const anoInicialPadrao = (b) => Math.min(Math.max(ANO_INICIAL_PADRAO, b.ano_min), b.ano_max);
+
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 const MESES_LONGOS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
 const CAMPOS_LISTA = ["substancias", "municipios"];
@@ -120,7 +125,7 @@ function paramsURL(fl) {
   const p = paramsAPI(fl);
   // tira da URL o que está no padrão, para o link compartilhado ficar curto
   const b = estado.meta.bases[fl.base];
-  const padrao = { base: "arrecadacao", ano_inicio: String(b.ano_min), ano_fim: String(b.ano_max), mes_inicio: "1", mes_fim: "12",
+  const padrao = { base: "arrecadacao", ano_inicio: String(anoInicialPadrao(b)), ano_fim: String(b.ano_max), mes_inicio: "1", mes_fim: "12",
     agrupar_substancias: "true", tipo_titular: "Todos", denominador: "com_registro", excluir_foco_das_medias: "false", top_n: "10" };
   for (const [k, v] of Object.entries(padrao)) if (p.get(k) === v) p.delete(k);
   if (fl.escala === "log") p.set("escala", "log");
@@ -188,7 +193,7 @@ function montarPeriodo(valores = {}) {
   const b = estado.meta.bases[f.base.value];
   const anos = [];
   for (let a = b.ano_min; a <= b.ano_max; a++) anos.push([a, a]);
-  opcoes(f.ano_inicio, anos, valores.ano_inicio ?? b.ano_min);
+  opcoes(f.ano_inicio, anos, valores.ano_inicio ?? anoInicialPadrao(b));
   opcoes(f.ano_fim, anos, valores.ano_fim ?? b.ano_max);
   const meses = MESES.map((m, i) => [i + 1, m]);
   opcoes(f.mes_inicio, meses, valores.mes_inicio ?? 1);
