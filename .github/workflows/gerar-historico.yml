@@ -1,0 +1,50 @@
+# Carga ÚNICA do histórico da arrecadação (2002–2021). Rode à mão pela aba Actions:
+# "Gerar histórico da ANM" -> "Run workflow". Os arquivos desses períodos não mudam, então
+# não fazem parte da atualização diária. O resumo da execução mostra os totais por ano para conferência.
+name: Gerar histórico da ANM
+
+on:
+  workflow_dispatch:
+    inputs:
+      forcar:
+        description: "Gravar mesmo se a verificação apontar meses faltando ou incompletos"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: atualizar-dados          # não roda junto com a atualização diária
+  cancel-in-progress: false
+
+jobs:
+  historico:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Baixar e processar 2002–2021
+        run: python scripts/gerar_historico.py ${{ inputs.forcar && '--forcar' || '' }}
+
+      - name: Publicar o histórico
+        run: |
+          if [ -n "$(git status --porcelain dados_processados/historico)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add dados_processados/historico
+            git commit -m "Histórico da arrecadação da CFEM (2002–2021)"
+            git pull --rebase
+            git push
+          else
+            echo "Histórico sem mudanças."
+          fi
