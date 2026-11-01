@@ -153,7 +153,7 @@ function desenharFluxo(resp, fl) {
   let acum = 0;
   const ys = valores.map((v, i) => { const y = ((acum + v / 2) / tot.gerado) * util + vao * i; acum += v; return y; });
 
-  const iTotal = no("", css("--c-soma"), X[0], 0.5,
+  const iTotal = no("", css("--c-dest-municipio"), X[0], 0.5,
     `<b>CFEM arrecadada na região</b><br>${brl(tot.gerado, false)}<br>${origens.map((o) => `${o.nome}: ${brl(o.gerado)}`).join("<br>")}`);
   origens.forEach((o, i) => {
     const v = o.destinos.municipio;
