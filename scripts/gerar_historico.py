@@ -18,6 +18,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pandas as pd
+
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 os.environ["CFEM_MODO"] = "servidor"
@@ -32,6 +34,47 @@ from app.repositorio import pasta_historico  # noqa: E402
 
 RE_PERIODO = re.compile(r"_(\d{4})_(\d{4})\.csv$", re.IGNORECASE)
 LIMIAR_MES = 0.35   # um mês com menos de 35% da mediana de registros/mês do próprio ano é suspeito
+
+# Tamanhos dos arquivos de períodos encerrados numa publicação completa da ANM (31/10/2026).
+# Períodos encerrados não deveriam encolher: abaixo de 90% disso, o arquivo provavelmente está incompleto.
+# (Em 01/11/2026 o portal publicou versões com 30–80% desses tamanhos e só ~30% dos valores.)
+TAMANHO_REFERENCIA = {
+    "CFEM_Arrecadacao_2002_2006.csv": 25_844_614,
+    "CFEM_Arrecadacao_2007_2011.csv": 48_650_700,
+    "CFEM_Arrecadacao_2012_2016.csv": 66_880_907,
+    "CFEM_Arrecadacao_2017_2021.csv": 84_063_006,
+}
+# Totais anuais oficiais conhecidos (Brasil) para conferência: a CFEM de 2021 passou de R$ 10,2 bi.
+REFERENCIA_OFICIAL = {2021: 10.2e9}
+TOLERANCIA_OFICIAL = 0.85     # aceita até 15% abaixo da referência
+
+
+def checar_tamanhos(fontes):
+    problemas = []
+    for f in fontes:
+        ref = TAMANHO_REFERENCIA.get(f.nome)
+        if ref and f.tamanho_bytes < 0.9 * ref:
+            problemas.append(f"{f.nome}: {f.tamanho_bytes / 1e6:.1f} MB, bem menor que os {ref / 1e6:.1f} MB "
+                             f"de uma publicação completa")
+    return problemas
+
+
+def checar_valores(nacional):
+    """Compara com totais oficiais e com o primeiro ano do período corrente já publicado."""
+    problemas = []
+    por_ano = nacional.groupby("Ano")["Valor"].sum()
+    for ano, ref in REFERENCIA_OFICIAL.items():
+        if ano in por_ano.index and por_ano[ano] < TOLERANCIA_OFICIAL * ref:
+            problemas.append(f"{ano}: total nacional de R$ {por_ano[ano] / 1e9:.2f} bi, mas o oficial passa de "
+                             f"R$ {ref / 1e9:.1f} bi")
+    publicado = config.PASTA_PRE_PROCESSADO / "nacional_arrecadacao.parquet"
+    if publicado.exists() and len(por_ano):
+        atual = pd.read_parquet(publicado, columns=["Ano", "Valor"]).groupby("Ano")["Valor"].sum()
+        ultimo, seguinte = int(por_ano.index.max()), int(por_ano.index.max()) + 1
+        if seguinte in atual.index and por_ano[ultimo] < 0.5 * atual[seguinte]:
+            problemas.append(f"{ultimo}: R$ {por_ano[ultimo] / 1e9:.2f} bi, menos da metade dos "
+                             f"R$ {atual[seguinte] / 1e9:.2f} bi publicados para {seguinte}")
+    return problemas
 
 
 def anos_esperados(nomes):
@@ -121,6 +164,7 @@ def main() -> int:
 
     fim_primeiro = int(RE_PERIODO.search(nomes[0]).group(2))
     problemas, inicio = verificar(nacional, anos, fim_primeiro)
+    problemas = checar_tamanhos(fontes) + checar_valores(nacional) + problemas
     inicio = inicio or (anos[0], 1)
     versao = hashlib.sha1("\n".join(sorted(f.assinatura() for f in fontes)).encode()).hexdigest()[:12]
     meta = {"versao": versao, "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),

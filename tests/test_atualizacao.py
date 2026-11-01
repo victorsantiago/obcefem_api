@@ -190,3 +190,26 @@ def test_verificacao_do_historico_e_trava_diaria(tmp_path):
     assert diario.checar_contra_publicado(Novo([100.0, 101.0, 10.0]), pasta) == []      # 2025 é o ano corrente
     problemas = diario.checar_contra_publicado(Novo([100.0, 60.0, 50.0]), pasta)
     assert len(problemas) == 1 and problemas[0].startswith("2024")
+
+
+def test_historico_barra_publicacao_incompleta_da_anm(tmp_path, monkeypatch):
+    """Caso real de 01/11/2026: arquivos menores e só ~30% dos valores."""
+    import importlib.util
+    import pandas as pd
+    spec = importlib.util.spec_from_file_location("gh", os.path.join(os.path.dirname(__file__), "..", "scripts", "gerar_historico.py"))
+    hist = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(hist)
+
+    class F:
+        def __init__(self, nome, tam):
+            self.nome, self.tamanho_bytes = nome, tam
+    assert hist.checar_tamanhos([F("CFEM_Arrecadacao_2017_2021.csv", 84_063_006)]) == []
+    assert hist.checar_tamanhos([F("CFEM_Arrecadacao_2017_2021.csv", 30_121_381)])
+
+    monkeypatch.setattr(config, "PASTA_PRE_PROCESSADO", tmp_path)
+    pd.DataFrame({"Ano": [2022], "Valor": [7.02e9]}).to_parquet(tmp_path / "nacional_arrecadacao.parquet")
+    bom = pd.DataFrame({"Ano": [2020, 2021], "Valor": [6.1e9, 10.3e9]})
+    ruim = pd.DataFrame({"Ano": [2020, 2021], "Valor": [2.4e9, 2.94e9]})
+    assert hist.checar_valores(bom) == []
+    problemas = hist.checar_valores(ruim)
+    assert any("oficial" in p for p in problemas) and any("2022" in p for p in problemas)
