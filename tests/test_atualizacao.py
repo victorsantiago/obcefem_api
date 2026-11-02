@@ -8,6 +8,7 @@ import functools
 import http.server
 import os
 import shutil
+import sys
 import threading
 import time
 from datetime import datetime, timedelta, timezone
@@ -216,3 +217,40 @@ def test_historico_barra_publicacao_incompleta_da_anm(tmp_path, monkeypatch):
     assert hist.checar_valores(bom) == []
     problemas = hist.checar_valores(ruim)
     assert any("oficial" in p for p in problemas) and any("2022" in p for p in problemas)
+
+
+def test_codigos_de_saida_da_atualizacao_diaria(tmp_path, monkeypatch, capsys):
+    """Trava = código 2 com aviso amarelo no Actions (não é erro); portal fora do ar = 1; tudo certo = 0."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("gd", os.path.join(os.path.dirname(__file__), "..", "scripts", "gerar_dados.py"))
+    diario = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(diario)
+    resumo = tmp_path / "resumo.md"
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(resumo))
+    monkeypatch.setattr(diario.config, "PASTA_PRE_PROCESSADO", tmp_path)
+    monkeypatch.setattr(diario, "salvar_pre_processado", lambda novo, destino: True)
+
+    class Repo:
+        pronto = True
+        falhas = []
+        dados_sem_historico = type("N", (), {"versao": "abc"})()
+        def atualizar(self):
+            return {"status": "ok", "falhas_download": self.falhas,
+                    "arquivos": {"CFEM_Arrecadacao_2022_2026.csv": {"origem": "anm", "conteudo_mudou": True, "tamanho_bytes": 28_906_852}}}
+
+    monkeypatch.setattr(diario, "Repositorio", Repo)
+    monkeypatch.setattr(sys, "argv", ["gerar_dados.py"])
+    monkeypatch.setattr(diario, "checar_contra_publicado", lambda novo, pasta: ["2024: arrecadação nacional caiu"])
+    assert diario.main() == 2
+    assert "::warning" in capsys.readouterr().out
+    assert "Nada foi publicado" in resumo.read_text() and "28.9 MB" in resumo.read_text()
+
+    monkeypatch.setattr(sys, "argv", ["gerar_dados.py", "--forcar"])
+    assert diario.main() == 0
+
+    monkeypatch.setattr(sys, "argv", ["gerar_dados.py"])
+    monkeypatch.setattr(diario, "checar_contra_publicado", lambda novo, pasta: [])
+    assert diario.main() == 0
+    Repo.falhas = ["CFEM_Arrecadacao_2022_2026.csv"]
+    assert diario.main() == 1
+    assert "Portal da ANM indisponível" in resumo.read_text()

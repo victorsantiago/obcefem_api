@@ -96,7 +96,7 @@ class Repositorio:
             nomes = list(config.ARQUIVOS_ARRECADACAO) + ([config.ARQUIVO_AUTUACAO] if config.ARQUIVO_AUTUACAO else [])
             fontes = [obter_arquivo(n) for n in nomes]
             versao = versao_conjunto(fontes)
-            resumo = {"arquivos": {f.nome: {"origem": f.origem, "conteudo_mudou": f.conteudo_mudou} for f in fontes},
+            resumo = {"arquivos": {f.nome: {"origem": f.origem, "conteudo_mudou": f.conteudo_mudou, "tamanho_bytes": f.tamanho_bytes} for f in fontes},
                       "falhas_download": [f.nome for f in fontes if f.origem == "cache_falha_download"]}
             if not forcar and self.dados_sem_historico is not None and self.dados_sem_historico.versao == versao:
                 self.estado = "pronto"

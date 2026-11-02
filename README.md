@@ -60,7 +60,7 @@ A Vercel roda a API como função serverless: o disco é somente leitura (só `/
 Como funciona na Vercel:
 
 1. `scripts/gerar_dados.py` baixa os CSVs da ANM, processa e grava `dados_processados/`. O zip já traz essa pasta gerada com os dados de 30/10/2026, então o primeiro deploy funciona de imediato.
-2. O workflow `.github/workflows/atualizar-dados.yml` roda esse script **todo dia às 07:45 (Belém)** no GitHub Actions. Se a ANM publicou algo novo, ele faz commit de `dados_processados/`.
+2. O workflow `.github/workflows/atualizar-dados.yml` roda esse script **todo dia às 07:45 (Belém)** no GitHub Actions, com uma execução de reserva às 13:17, porque o GitHub às vezes atrasa ou pula agendamentos. Se a ANM publicou algo novo, ele faz commit de `dados_processados/`.
 3. O commit dispara um novo deploy na Vercel (integração com o GitHub). A API passa a servir os dados novos.
 
 Para colocar no ar:
@@ -82,7 +82,17 @@ Os arquivos de períodos encerrados da ANM (`CFEM_Arrecadacao_2002_2006.csv` a `
 
 ### Trava de segurança na atualização diária
 
-`scripts/gerar_dados.py` compara os anos já encerrados do arquivo novo (2022–2025) com o que está publicado. Se algum ano perder mais de 2% do valor, ou a região perder registros, nada é publicado. A execução fica vermelha no GitHub (que avisa por e-mail) e o site continua com a versão anterior. Se a mudança for legítima, rode `python scripts/gerar_dados.py --forcar`.
+`scripts/gerar_dados.py` compara os anos já encerrados do arquivo novo (2022–2025) com o que está publicado. Se algum ano perder mais de 2% do valor, ou a região perder registros, nada é publicado e o site continua com a versão anterior.
+
+Como cada execução aparece na aba *Actions*:
+
+| Sinal | O que aconteceu |
+|---|---|
+| ✅ verde | Dados novos publicados, ou nada mudou |
+| ✅ verde com aviso amarelo | A trava barrou um arquivo incompleto da ANM (o resumo da execução lista os anos que caíram e o tamanho dos arquivos). Não é preciso fazer nada: quando a ANM corrigir, a próxima execução publica sozinha |
+| ❌ vermelho | Erro de verdade: portal da ANM fora do ar, falha ao processar ou ao publicar (o GitHub avisa por e-mail) |
+
+Se a mudança for legítima (a ANM corrigiu valores antigos para menos), rode *Run workflow* marcando **"Publicar mesmo se a trava de segurança disparar"**, ou `python scripts/gerar_dados.py --forcar`. O script sai com código 0 (ok), 1 (erro) ou 2 (trava).
 
 ## Atualização diária (modo servidor)
 

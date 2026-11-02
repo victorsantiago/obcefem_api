@@ -12,7 +12,8 @@ ao que está publicado, ou a região perder registros nesses anos, nada é grava
 de um arquivo incompleto no portal da ANM.
 
 Só reescreve os arquivos se o conteúdo mudou (assim o Git não registra commits vazios).
-Código de saída: 0 = ok (com ou sem mudança), 1 = falha ou trava acionada.
+Código de saída: 0 = ok (com ou sem mudança), 1 = falha (portal fora do ar, erro ao processar),
+2 = trava acionada (o arquivo da ANM parece incompleto; nada foi publicado, o site segue com a versão anterior).
 """
 import argparse
 import os
@@ -30,6 +31,14 @@ from app import config  # noqa: E402
 from app.repositorio import Repositorio, salvar_pre_processado  # noqa: E402
 
 QUEDA_MAXIMA = 0.02
+SAIDA_TRAVA = 2
+
+
+def resumo(texto: str) -> None:
+    """Escreve no resumo da execução no GitHub Actions (aba Summary), quando houver."""
+    if os.getenv("GITHUB_STEP_SUMMARY"):
+        with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+            f.write(texto + "\n")
 
 
 def checar_contra_publicado(novo, pasta) -> list[str]:
@@ -62,9 +71,11 @@ def main() -> int:
     resultado = repo.atualizar()
     if resultado["status"] == "erro" or not repo.pronto:
         print(f"Falha ao processar: {resultado.get('erro')}", file=sys.stderr)
+        resumo(f"## Erro ao processar os dados da ANM\n\n{resultado.get('erro')}\n\nNada foi publicado.")
         return 1
     if resultado.get("falhas_download"):
         print(f"Portal da ANM indisponível para {resultado['falhas_download']}; nada foi publicado.", file=sys.stderr)
+        resumo(f"## Portal da ANM indisponível\n\nNão foi possível baixar: {resultado['falhas_download']}. Nada foi publicado.")
         return 1
     for nome, info in resultado.get("arquivos", {}).items():
         print(f"  {nome}: origem={info['origem']} conteudo_mudou={info['conteudo_mudou']}")
@@ -75,13 +86,18 @@ def main() -> int:
     if problemas:
         texto = "Trava de segurança: o arquivo novo da ANM parece incompleto.\n" + "\n".join(f"- {p}" for p in problemas)
         print(texto, file=sys.stderr)
-        if os.getenv("GITHUB_STEP_SUMMARY"):
-            with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
-                f.write("## " + texto + "\n\nNada foi publicado. O site continua com a versão anterior.\n")
+        tamanhos = "\n".join(f"- {nome}: {info.get('tamanho_bytes', 0) / 1e6:.1f} MB" for nome, info in resultado.get("arquivos", {}).items())
         if not args.forcar:
-            return 1
+            # anotação amarela no Actions (não é erro: é a proteção funcionando)
+            print(f"::warning title=Trava de segurança::O arquivo da ANM parece incompleto ({len(problemas)} problema(s)); o site segue com a versão anterior.")
+            resumo("## ⚠️ " + texto + f"\n\nArquivos baixados hoje:\n{tamanhos}\n\n"
+                   "**Nada foi publicado.** O site continua com a versão anterior. Não é preciso fazer nada: "
+                   "quando a ANM republicar o arquivo completo, a próxima execução atualiza o site sozinha.")
+            return SAIDA_TRAVA
+        resumo("## ⚠️ " + texto + "\n\nPublicado mesmo assim, porque a execução pediu para forçar.")
     gravou = salvar_pre_processado(novo, destino)
     print(f"Versão {novo.versao}: {'dados novos gravados em' if gravou else 'sem mudanças em'} {destino}")
+    resumo(f"## {'✅ Dados novos da ANM processados' if gravou else 'Sem mudanças nos dados da ANM'}\n\nVersão {novo.versao}.")
     return 0
 
 
