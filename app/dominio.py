@@ -33,7 +33,7 @@ CORES = {
 
 BASES = {
     "arrecadacao": "Arrecadação da CFEM (valor recolhido pelas mineradoras)",
-    "autuacao": "Autuações de CFEM (valor inicial dos autos de cobrança)",
+    "autuacao": "Autuações de CFEM (valor dos autos de cobrança, atualizado pela ANM)",
 }
 
 MESES_ABREV = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]

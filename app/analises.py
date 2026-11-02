@@ -126,8 +126,10 @@ def notas(dados: Dados, f: Filtros) -> list[str]:
             n.append(f"A série da ANM começa em {MESES_ABREV[cob['primeiro_mes'] - 1]}/{cob['primeiro_ano']}; "
                      f"{cob['primeiro_ano']} não tem os meses anteriores.")
     else:
-        n.append("Autuação = valor inicial do auto de cobrança (não é valor pago). "
+        n.append("Autuação = valor do auto de cobrança como a ANM publica hoje; a ANM atualiza esse valor ao longo do tempo (não é valor pago). "
                  "Ano = ano do processo de cobrança (AnoPublicação falta em ~1/3 das linhas).")
+        n.append("A base de autuações da ANM tem poucos autos recentes: a maior parte é de 2009 a 2014. "
+                 "Anos sem barra não têm autos publicados para o município; não é falha do painel.")
     n.append("Valores nominais (sem correção monetária).")
     return n
 

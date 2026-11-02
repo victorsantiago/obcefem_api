@@ -203,7 +203,7 @@ Os testes conferem os totais com somas feitas direto no CSV, os filtros, as vali
 ## Observações sobre os dados
 
 - **Arrecadação** é o valor pago pelas mineradoras referente à produção do município, não o repasse à prefeitura (a cota do município produtor é 60%, Lei 13.540/2017). A página de distribuição estima o repasse pela regra legal (ver acima).
-- **Autuação** é o valor inicial do auto de cobrança, não valor pago.
+- **Autuação** é o valor do auto de cobrança como a ANM o publica no momento, não valor pago. A ANM atualiza esse valor: comparando a cópia de agosto/2026 com a de 31/10/2026, 677 dos cerca de 21 mil autos mudaram de valor e 81 autos novos (todos de 2026) entraram. Nenhum auto de Parauapebas ou Canaã entre 2020 e 2025 aparece em nenhuma das duas versões.
 - O último ano da arrecadação é parcial. A API detecta o último mês completo comparando o volume de registros com a mediana dos anos anteriores (ver `cobertura_arrecadacao` em `/meta`).
 - As **médias PA/BR** usam o país inteiro (todas as UFs do CSV), com os mesmos filtros de período, substância e titular. Linhas sem município nem UF ficam de fora (no arquivo 2022–2026, 51 linhas, cerca de R$ 0,9 mi).
 - São Domingos do Araguaia não tem registros nas bases atuais.

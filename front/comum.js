@@ -23,8 +23,9 @@ const COR_VAR = {
 };
 // Ano em que o painel abre selecionado (o usuário pode escolher desde o início da série).
 // Se a base não tiver esse ano, usa o mais próximo disponível.
+// Autuações abrem com a série inteira: a ANM publica poucos autos recentes, e começar em 2022 esconderia quase tudo.
 const ANO_INICIAL_PADRAO = 2022;
-const anoInicialPadrao = (b) => Math.min(Math.max(ANO_INICIAL_PADRAO, b.ano_min), b.ano_max);
+const anoInicialPadrao = (b) => (b.tem_mes ? Math.min(Math.max(ANO_INICIAL_PADRAO, b.ano_min), b.ano_max) : b.ano_min);
 
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 const MESES_LONGOS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
@@ -209,7 +210,7 @@ function montarPeriodo(valores = {}) {
   $("#grupo-meses").hidden = !temMes;
   if ($("#dica-base")) $("#dica-base").textContent = baseAtual() === "arrecadacao"
     ? "Valor pago pelas mineradoras sobre a produção do município. Não é o repasse que chega à prefeitura."
-    : "Valor inicial dos autos de cobrança, não valor pago. O ano é o do processo de cobrança.";
+    : "Valor dos autos de cobrança, atualizado pela ANM ao longo do tempo. Não é valor pago. O ano é o do processo de cobrança.";
 }
 
 function aplicarNoFormulario(p) {
