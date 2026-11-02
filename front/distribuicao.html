@@ -14,6 +14,7 @@
   <script src="vendor/plotly.min.js" defer></script>
   <script src="comum.js" defer></script>
   <script src="distribuicao.js" defer></script>
+  <script src="exportar.js" defer></script>
 </head>
 <body>
   <a class="pular" href="#conteudo">Ir para os gráficos</a>
@@ -101,6 +102,7 @@
         <div class="acoes-finais">
           <a class="botao" id="link-csv" href="#" download>Baixar distribuição filtrada (CSV)</a>
           <a class="botao secundario" id="link-json" href="#" target="_blank" rel="noopener">Abrir todos os dados (JSON)</a>
+          <button type="button" class="botao secundario" data-acao="baixar-pdf" title="Baixar um PDF com os indicadores, todos os gráficos e tabelas desta página">Download (PDF)</button>
           <button type="button" class="botao-texto" data-acao="restaurar">Restaurar filtros</button>
         </div>
       </form>
@@ -129,6 +131,10 @@
       <nav class="paginas" aria-label="Páginas">
         <a href="./" data-pagina="arrecadacao" data-arquivo="./"><span class="longo">Análise da </span>arrecadação</a>
         <a href="distribuicao.html" data-pagina="distribuicao" data-arquivo="distribuicao.html" aria-current="page"><span class="longo">Análise da </span>distribuição</a>
+        <a href="https://victorsantiago.github.io/obcefem/dimensao-social.html">Social</a>
+        <a href="https://victorsantiago.github.io/obcefem/dimensao-economica.html">Econômica</a>
+        <a href="https://victorsantiago.github.io/obcefem/dimensao-ambiental.html">Ambiental</a>
+        <a href="https://victorsantiago.github.io/obcefem/dimensao-institucional.html">Institucional</a>
       </nav>
 
       <header class="topo">

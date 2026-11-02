@@ -354,6 +354,22 @@ main { padding: 32px clamp(16px, 3vw, 44px) 48px; min-width: 0; outline: none; }
   .grafico { min-height: 320px; }
   .cifra .valor { font-size: 1.15rem; }
 }
+/* ============================================================
+   Exportação: rodapé de cada bloco com fonte e botões CSV/PNG
+   ============================================================ */
+.rodape-bloco {
+  display: flex; justify-content: space-between; align-items: center; gap: 6px 16px; flex-wrap: wrap;
+  margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--grid); font-size: .78rem; color: var(--muted);
+}
+.acoes-bloco { display: flex; gap: 6px; flex-wrap: wrap; }
+.botao-mini {
+  min-height: 28px; padding: 0 10px; border: 1px solid var(--rule); border-radius: var(--raio); background: var(--surface);
+  font-size: .74rem; font-weight: 700; color: var(--ink-2); cursor: pointer; white-space: nowrap;
+}
+.botao-mini:hover { background: var(--surface-2); color: var(--ink); }
+.acoes-finais button.botao { width: 100%; font: inherit; font-size: .875rem; font-weight: 600; }
+.acoes-finais button.botao:disabled { cursor: progress; opacity: .75; }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
