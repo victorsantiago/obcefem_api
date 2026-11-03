@@ -118,21 +118,28 @@ function intervalo(fl) {
 }
 
 function desenharFluxo(resp, fl) {
-  $("#titulo-fluxo").textContent = `Para onde vai a CFEM gerada na região ${intervalo(fl)}`;
+  $("#titulo-fluxo").textContent = `Para onde vai a CFEM arrecadada no Pará ${intervalo(fl)}`;
   const d = resp.dados;
   const origens = d.origens.filter((o) => o.gerado > 0);
   if (!origens.length) { plotar("g-fluxo", [], {}); return; }
+  const totalRC = estado.meta.regiao_carajas.length, nm = fl.municipios.length;
+  $("#sub-fluxo").textContent = "Cada faixa sai de onde a CFEM foi arrecadada e chega ao destino da repartição legal; a largura é proporcional ao valor."
+    + (nm && nm < totalRC ? ` Região de Carajás: só os ${nm} de ${totalRC} municípios selecionados no filtro.` : "")
+    + " Passe o mouse ou toque para ver os números.";
   const nomesUniao = Object.fromEntries(d.parcelas_uniao.map((p) => [p.id, p.nome]));
   const tot = d.total;
   const estreito = $("#g-fluxo").clientWidth < 640;
+  // nome de cada origem nos rótulos (curto) e nas dicas (por extenso)
+  const curto = (o) => ({ [DEMAIS]: "Demais da RI Carajás", [DEMAIS_PA]: "Demais do Pará", "Canaã dos Carajás": estreito ? "Canaã" : "Canaã dos Carajás" }[o.nome] || o.nome);
+  const extenso = (o) => ({ [DEMAIS]: "demais municípios da Região de Integração do Carajás", [DEMAIS_PA]: "demais municípios do Pará (fora da RI Carajás)" }[o.nome] || o.nome);
   // Colunas, da esquerda para a direita:
-  //   1. tudo o que foi arrecadado na região
-  //   2. a cota do município produtor, que fica com cada prefeitura (Parauapebas, Canaã, demais)
+  //   1. onde foi arrecadado: Parauapebas, Canaã, demais da RI Carajás e demais do Pará (sem sobreposição)
+  //   2. a cota do município produtor, que fica com cada prefeitura
   //   3. o restante: Governo do Pará, municípios afetados e União
   //   4. as parcelas da União (ANM, FNDCT, CETEM, IBAMA) — só em tela larga
   const outros = ["estado", "afetados", "uniao"].filter((k) => tot.destinos[k] > 0);
   const comParcelas = outros.includes("uniao") && !estreito;
-  const X = comParcelas ? [0.001, 0.3, 0.62, 0.999] : [0.001, 0.48, 0.999];
+  const X = comParcelas ? [0.001, 0.33, 0.64, 0.999] : [0.001, 0.5, 0.999];
   const nos = { label: [], color: [], x: [], y: [], customdata: [] };
   const links = { source: [], target: [], value: [], color: [], customdata: [] };
   const no = (rotulo, cor, x, y, dica) => {
@@ -140,28 +147,33 @@ function desenharFluxo(resp, fl) {
     nos.customdata.push(dica); return nos.label.length - 1;
   };
   const liga = (de, para, v, cor, dica) => {
+    if (!(v > 0)) return;
     links.source.push(de); links.target.push(para); links.value.push(v / 1e6); links.color.push(cor); links.customdata.push(dica);
   };
   const translucida = (hex, a) => {
     const h = hex.replace("#", ""); const n = parseInt(h.length === 3 ? h.split("").map((c) => c + c).join("") : h, 16);
     return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
   };
-  // posições verticais na mesma escala para as colunas 2 e 3: prefeituras em cima, demais destinos embaixo
+  // posições verticais proporcionais ao valor, com um vão entre os nós de uma coluna
   const vao = 0.035;
-  const valores = [...origens.map((o) => o.destinos.municipio), ...outros.map((k) => tot.destinos[k])];
-  const util = 1 - vao * (valores.length - 1);
-  let acum = 0;
-  const ys = valores.map((v, i) => { const y = ((acum + v / 2) / tot.gerado) * util + vao * i; acum += v; return y; });
+  const empilhar = (valores) => {
+    const util = 1 - vao * (valores.length - 1);
+    let acum = 0;
+    return valores.map((v, i) => { const y = ((acum + v / 2) / tot.gerado) * util + vao * i; acum += v; return y; });
+  };
+  const yOrig = empilhar(origens.map((o) => o.gerado));
+  // colunas 2 e 3 na mesma escala: prefeituras em cima, demais destinos embaixo
+  const ys = empilhar([...origens.map((o) => o.destinos.municipio), ...outros.map((k) => tot.destinos[k])]);
 
-  const iTotal = no("", css("--c-dest-municipio"), X[0], 0.5,
-    `<b>CFEM arrecadada na região</b><br>${brl(tot.gerado, false)}<br>${origens.map((o) => `${o.nome}: ${brl(o.gerado)}`).join("<br>")}`);
+  const iOrig = origens.map((o, i) => no(`${curto(o)}<br>${brl(o.gerado)}`, corSerie(o.nome), X[0], yOrig[i],
+    `<b>Arrecadado em ${extenso(o)}</b><br>${brl(o.gerado, false)}<br>${pct((o.gerado / tot.gerado) * 100)} do arrecadado no Pará`));
   origens.forEach((o, i) => {
     const v = o.destinos.municipio;
     if (!(v > 0)) return;
-    const nome = o.nome === DEMAIS ? "Demais municípios" : o.nome;
-    const alvo = no(`${nome}<br>${brl(v)}`, corSerie(o.nome), X[1], ys[i],
-      `<b>Prefeitura${o.nome === DEMAIS ? "s dos demais municípios" : ` de ${o.nome}`}</b><br>${brl(v, false)}<br>${pct(o.percentuais.municipio)} do que foi arrecadado no município`);
-    liga(iTotal, alvo, v, translucida(corSerie(o.nome), 0.38), `Cota do município produtor → ${nome}<br>${brl(v, false)}`);
+    const multi = o.nome === DEMAIS || o.nome === DEMAIS_PA;
+    const alvo = no(`${curto(o)}<br>${brl(v)}`, corSerie(o.nome), X[1], ys[i],
+      `<b>Prefeitura${multi ? `s dos ${extenso(o)}` : ` de ${o.nome}`}</b><br>${brl(v, false)}<br>${pct(o.percentuais.municipio)} do que foi arrecadado ${multi ? "nesses municípios" : "no município"}`);
+    liga(iOrig[i], alvo, v, translucida(corSerie(o.nome), 0.4), `${curto(o)} → cota do município produtor<br>${brl(v, false)}`);
   });
   const iOutro = {};
   outros.forEach((k, j) => {
@@ -169,8 +181,9 @@ function desenharFluxo(resp, fl) {
     iOutro[k] = no(`${DEST_NOME[k]}<br>${brl(v)} (${pct(tot.percentuais[k])})`, corDest(k), X[2], ys[origens.length + j],
       `<b>${DEST_NOME[k]}</b><br>${brl(v, false)}<br>${pct(tot.percentuais[k])} do arrecadado`
       + (k === "uniao" ? `<br>${Object.entries(tot.uniao).filter(([, x]) => x > 0).map(([p, x]) => `${nomesUniao[p]} ${brl(x)}`).join(" · ")}` : "")
-      + `<br>${origens.map((o) => `${o.nome === DEMAIS ? "Demais municípios" : o.nome}: ${brl(o.destinos[k])}`).join("<br>")}`);
-    liga(iTotal, iOutro[k], v, translucida(corDest(k), 0.38), `Arrecadado → ${DEST_NOME[k]}<br>${brl(v, false)} (${pct(tot.percentuais[k])})`);
+      + `<br>${origens.map((o) => `${curto(o)}: ${brl(o.destinos[k])}`).join("<br>")}`);
+    origens.forEach((o, i) => liga(iOrig[i], iOutro[k], o.destinos[k], translucida(corSerie(o.nome), 0.3),
+      `${curto(o)} → ${DEST_NOME[k]}<br>${brl(o.destinos[k], false)} (${pct(o.percentuais[k])} do arrecadado ${o.nome === DEMAIS || o.nome === DEMAIS_PA ? "nesses municípios" : "no município"})`));
   });
   if (comParcelas) {
     const parcelas = Object.entries(tot.uniao).filter(([, v]) => v > 0);
@@ -187,7 +200,7 @@ function desenharFluxo(resp, fl) {
   // títulos das colunas
   const pMun = pct(tot.percentuais.municipio), pResto = pct(100 - (tot.percentuais.municipio || 0));
   const titulos = comParcelas
-    ? [[`Arrecadado: ${brl(tot.gerado)}`, X[0], "left"], [`Município produtor (${pMun})`, X[1], "center"], [`Estado, afetados e União (${pResto})`, X[2], "center"], ["Parcelas da União", X[3], "right"]]
+    ? [[`Arrecadado no Pará: ${brl(tot.gerado)}`, X[0], "left"], [`Município produtor (${pMun})`, X[1], "center"], [`Estado, afetados e União (${pResto})`, X[2], "center"], ["Parcelas da União", X[3], "right"]]
     : [[`Arrecadado<br>${brl(tot.gerado)}`, X[0], "left"], [`Prefeituras (${pMun})`, X[1], "center"], [`Demais (${pResto})`, X[2], "right"]];
   const annotations = titulos.map(([t, x, al]) => ({ text: `<b>${t}</b>`, x, y: 1, xref: "paper", yref: "paper", yanchor: "bottom",
     xanchor: al, showarrow: false, font: { size: estreito ? 10.5 : 12, color: css("--muted") } }));
@@ -197,7 +210,7 @@ function desenharFluxo(resp, fl) {
       hovertemplate: "%{customdata}<extra></extra>" },
     link: { ...links, hovertemplate: "%{customdata}<extra></extra>" },
     textfont: { family: css("--fonte"), size: estreito ? 10.5 : 12.5, color: css("--ink") },
-  }], layout({ height: estreito ? 500 : 480, margin: { l: 4, r: 4, t: estreito ? 40 : 30, b: 10 }, annotations }));
+  }], layout({ height: estreito ? 560 : 520, margin: { l: 4, r: 4, t: estreito ? 40 : 30, b: 10 }, annotations }));
 }
 
 // ============================================================================ destinos por ano

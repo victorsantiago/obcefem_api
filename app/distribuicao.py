@@ -16,7 +16,7 @@ import pandas as pd
 
 from app import analises, config
 from app.analises import ESCOPOS, Filtros, _lista, _num, _pct, _vezes, descricao_media, filtrar, info_anos
-from app.dominio import (CORES, DEMAIS, DESTINOS, FOCO, PARCELAS_UNIAO, REGRA_ATUAL, REGRAS_DISTRIBUICAO, SOMA_FOCO,
+from app.dominio import (CHAVES_REGIAO, CORES, DEMAIS, DEMAIS_PA, DESTINOS, FOCO, PARCELAS_UNIAO, REGRA_ATUAL, REGRAS_DISTRIBUICAO, SOMA_FOCO,
                          UF_ALVO, norm, regra_do_ano)
 from app.repositorio import Dados
 
@@ -151,18 +151,26 @@ def indicadores(dados: Dados, f: Filtros) -> dict:
 
 
 def fluxo(dados: Dados, f: Filtros) -> dict:
-    """Origem (município onde a CFEM foi gerada) -> destinos -> parcelas da União. Para o diagrama de Sankey."""
+    """Origem (onde a CFEM foi gerada) -> destinos -> parcelas da União. Para o diagrama de Sankey.
+
+    Origens sem sobreposição, cobrindo o Pará: Parauapebas, Canaã, demais municípios da região de Carajás
+    (os selecionados no filtro) e demais municípios do Pará (fora da região, pela base nacional)."""
     f = _f(f)
     d = _com_destinos(filtrar(dados, f), f.regra)
     origens = []
-    for grupo in [*FOCO, DEMAIS]:
+    for grupo, ident in [*((m, norm(m).lower().replace(" ", "_")) for m in FOCO), (DEMAIS, "demais_regiao")]:
         sub = d[d["Grupo"] == grupo]
         if grupo == DEMAIS and sub.empty:
             continue
-        origens.append({"nome": grupo, "cor": CORES[grupo], **_soma_destinos(sub)})
+        origens.append({"id": ident, "nome": grupo, "cor": CORES[grupo], **_soma_destinos(sub)})
+    n = _nacional_filtrado(dados, f)
+    fora = _com_destinos(n[n["UF"].eq(UF_ALVO) & ~n["Chave"].isin(CHAVES_REGIAO)], f.regra)
+    if float(fora["Valor"].sum()) > 0:
+        origens.append({"id": "demais_pa", "nome": DEMAIS_PA, "cor": CORES[DEMAIS_PA], **_soma_destinos(fora)})
+    total = _soma_destinos(pd.concat([d[["Valor", *COLS_DESTINO, *COLS_UNIAO]], fora[["Valor", *COLS_DESTINO, *COLS_UNIAO]]]))
     return {"origens": origens, "destinos": [{"id": k, "nome": v, "cor": CORES[k]} for k, v in DESTINOS.items()],
             "parcelas_uniao": [{"id": k, "nome": v} for k, v in PARCELAS_UNIAO.items()],
-            "total": _soma_destinos(d)}
+            "total": total, "total_regiao": _soma_destinos(d)}
 
 
 def destinos_anual(dados: Dados, f: Filtros) -> dict:

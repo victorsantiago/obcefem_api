@@ -10,6 +10,7 @@ REGIAO_CARAJAS = [
     "São Geraldo do Araguaia", "São João do Araguaia",
 ]
 DEMAIS = "Demais municípios da região"
+DEMAIS_PA = "Demais municípios do Pará"   # fora da região de Carajás (só no fluxo da distribuição)
 SOMA_FOCO = "Canaã + Parauapebas"
 
 # Total de municípios segundo o IBGE (usado quando a média é sobre "todos os municípios")
@@ -24,6 +25,7 @@ CORES = {
     "Parauapebas": "#2a78d6",
     "Canaã dos Carajás": "#eb6834",
     DEMAIS: "#a3a29c",
+    DEMAIS_PA: "#c9c8c2",
     SOMA_FOCO: "#3d3c39",
     REF_RC: "#6250d6",
     REF_PA: "#1baf7a",

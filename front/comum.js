@@ -12,13 +12,14 @@ const API = (URL_INICIAL.get("api") || window.CFEM_API || new URL("api/v1", docu
 
 const FOCO = ["Parauapebas", "Canaã dos Carajás"];
 const DEMAIS = "Demais municípios da região";
+const DEMAIS_PA = "Demais municípios do Pará";   // fora da RI Carajás (só no fluxo da distribuição)
 const SOMA = "Canaã + Parauapebas";
 const REF_PA = "Média dos municípios do Pará";
 const REF_BR = "Média dos municípios do Brasil";
 const REF_RC = "Média dos municípios da região de Carajás";
 const ESCOPOS = [["RC", "Região"], ["PA", "PA"], ["BR", "BR"]];   // médias de referência, da mais próxima à mais ampla
 const COR_VAR = {
-  "Parauapebas": "--c-parauapebas", "Canaã dos Carajás": "--c-canaa", [DEMAIS]: "--c-demais",
+  "Parauapebas": "--c-parauapebas", "Canaã dos Carajás": "--c-canaa", [DEMAIS]: "--c-demais", [DEMAIS_PA]: "--c-demais-pa",
   [SOMA]: "--c-soma", [REF_RC]: "--c-media-rc", [REF_PA]: "--c-media-pa", [REF_BR]: "--c-media-br",
 };
 // Ano em que o painel abre selecionado (o usuário pode escolher desde o início da série).
