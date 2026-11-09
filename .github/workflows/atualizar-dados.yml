@@ -1,13 +1,25 @@
 # Atualização diária dos dados para a hospedagem na Vercel (modo pré-processado).
-# A ANM regrava os CSVs por volta das 6h (Brasília). Este workflow roda às 07:45 de Belém (10:45 UTC),
-# baixa e processa os arquivos e, se o conteúdo mudou, faz commit de dados_processados/.
+# A ANM regrava os CSVs por volta das 6h (Brasília). Este workflow roda às 07:45 de Belém (10:45 UTC) e,
+# como reserva, às 13:17 (16:17 UTC): o GitHub às vezes atrasa ou pula execuções agendadas.
+# Baixa e processa os arquivos e, se o conteúdo mudou, faz commit de dados_processados/.
 # O commit dispara um novo deploy na Vercel automaticamente (integração Git).
+#
+# Resultado de cada execução:
+#   ✅ verde ..................... dados novos publicados, ou nada mudou
+#   ✅ verde com aviso amarelo ... trava de segurança: o arquivo da ANM parece incompleto; nada publicado
+#   ❌ vermelho .................. erro de verdade (portal fora do ar, falha ao processar ou ao publicar)
 name: Atualizar dados da ANM
 
 on:
   schedule:
-    - cron: "45 10 * * *"
+    - cron: "45 10 * * *"   # 07:45 em Belém
+    - cron: "17 16 * * *"   # 13:17 em Belém (reserva)
   workflow_dispatch:        # botão "Run workflow" na aba Actions
+    inputs:
+      forcar:
+        description: "Publicar mesmo se a trava de segurança disparar (use só se tiver certeza de que o arquivo da ANM está completo)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -21,9 +33,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -32,9 +44,22 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Baixar e processar os CSVs da ANM
-        run: python scripts/gerar_dados.py
+        id: gerar
+        run: |
+          set +e
+          if [ "${{ inputs.forcar }}" = "true" ]; then
+            python scripts/gerar_dados.py --forcar
+          else
+            python scripts/gerar_dados.py
+          fi
+          codigo=$?
+          echo "codigo=$codigo" >> "$GITHUB_OUTPUT"
+          # 0 = ok; 2 = trava de segurança (aviso, não erro); qualquer outro = erro
+          if [ "$codigo" -ne 0 ] && [ "$codigo" -ne 2 ]; then exit "$codigo"; fi
+          exit 0
 
       - name: Publicar se houver dados novos
+        if: steps.gerar.outputs.codigo == '0'
         run: |
           if [ -n "$(git status --porcelain dados_processados)" ]; then
             git config user.name "github-actions[bot]"
