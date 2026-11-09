@@ -25,7 +25,7 @@ from urllib.parse import urljoin
 
 import httpx
 
-from app import config
+from app import config, tls
 
 log = logging.getLogger("cfem.fonte")
 
@@ -109,9 +109,11 @@ def obter_arquivo(nome: str) -> ArquivoFonte:
         if meta.get("last_modified"):
             cabecalhos["If-Modified-Since"] = meta["last_modified"]
 
-    try:
+    def baixar():
+        nonlocal meta
         timeout = httpx.Timeout(config.TIMEOUT_DOWNLOAD, connect=30)
-        with httpx.stream("GET", url, headers=cabecalhos, timeout=timeout, follow_redirects=True) as resp:
+        with httpx.stream("GET", url, headers=cabecalhos, timeout=timeout, follow_redirects=True,
+                          verify=tls.verificacao_para(url)) as resp:
             if resp.status_code == 304:
                 log.info("%s: portal respondeu 304 (sem alterações)", nome)
                 return _resultado("cache", False)
@@ -136,6 +138,24 @@ def obter_arquivo(nome: str) -> ArquivoFonte:
             log.info("%s baixado (%.1f MB)%s", nome, recebido / 1e6,
                      "" if mudou is None else (" — conteúdo novo" if mudou else " — conteúdo idêntico ao anterior"))
             return _resultado("anm", mudou)
+
+    try:
+        try:
+            return baixar()
+        except httpx.HTTPError as erro:
+            if not tls.eh_erro_de_cadeia(erro) or tls.ja_completado(url):
+                raise
+            # cadeia de certificados incompleta no portal: completa pela AIA e tenta de novo (ver app/tls.py)
+            try:
+                tls.completar_cadeia(url)
+            except Exception as erro_aia:
+                raise httpx.ConnectError(f"{erro} (e não foi possível completar a cadeia pela AIA: {erro_aia})") from erro
+            try:
+                return baixar()
+            except httpx.HTTPError as erro2:
+                if tls.eh_erro_de_cadeia(erro2):
+                    raise httpx.ConnectError(f"{erro2}. {tls.diagnostico(url)}") from erro2
+                raise
     except (httpx.HTTPError, OSError) as erro:
         if destino.exists():
             log.warning("Falha ao baixar %s (%s). Usando a cópia local.", nome, erro)
