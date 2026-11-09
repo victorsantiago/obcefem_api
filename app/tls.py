@@ -23,9 +23,13 @@ from urllib.parse import urlsplit
 
 import certifi
 import httpx
-from cryptography import x509
-from cryptography.hazmat.primitives.serialization import Encoding, pkcs7
-from cryptography.x509.oid import AuthorityInformationAccessOID, ExtensionOID
+
+try:   # só o download dos CSVs (GitHub Actions / servidor) precisa; a API na Vercel sobe mesmo sem o pacote
+    from cryptography import x509
+    from cryptography.hazmat.primitives.serialization import Encoding, pkcs7
+    from cryptography.x509.oid import AuthorityInformationAccessOID, ExtensionOID
+except ImportError:   # pragma: no cover
+    x509 = pkcs7 = Encoding = AuthorityInformationAccessOID = ExtensionOID = None
 
 log = logging.getLogger("cfem.tls")
 
@@ -131,6 +135,8 @@ def descrever(cert: x509.Certificate) -> str:
 
 def contexto_com_cadeia(host: str, porta: int = 443, cafile: str | None = None) -> tuple[ssl.SSLContext, str]:
     """Contexto com as intermediárias do host completadas pela AIA. Devolve também uma descrição para o log."""
+    if x509 is None:
+        raise RuntimeError("o pacote 'cryptography' não está instalado (veja requirements.txt)")
     folha = certificado_do_servidor(host, porta)
     inter = intermediarias_via_aia(folha)
     ctx = contexto_base(cafile)
