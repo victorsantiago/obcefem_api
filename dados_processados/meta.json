@@ -1,6 +1,6 @@
 {
-  "versao": "cebe8b5ea1c9",
-  "gerado_em": "2026-11-15T17:26:11+00:00",
+  "versao": "e21dca9a311d",
+  "gerado_em": "2026-11-18T19:07:06+00:00",
   "bases": [
     "arrecadacao",
     "autuacao"
@@ -23,7 +23,7 @@
       "8": 373,
       "9": 260,
       "10": 326,
-      "11": 43
+      "11": 49
     },
     "mediana_registros_mes_anos_anteriores": 10849.0
   },
@@ -32,22 +32,22 @@
       "nome": "CFEM_Arrecadacao_2022_2026.csv",
       "origem": "anm",
       "url": "https://dadosabertos.anm.gov.br/CFEM/CFEM_Arrecadacao_2022_2026.csv",
-      "tamanho_bytes": 99740021,
-      "sha256": "6bc55b8b1711852376493ea91c9ab049b6409521aef691dfb190265cd3e66ca3",
-      "last_modified": "Sun, 15 Nov 2026 09:03:47 GMT",
-      "etag": "\"b7432239e074dd1:0\"",
-      "baixado_em": "2026-11-15T17:26:05+00:00",
+      "tamanho_bytes": 99740803,
+      "sha256": "bff3919f6da4f23d7c08ba53f6bca7812e30252f79856de7185e2d88903dcfb7",
+      "last_modified": "Wed, 18 Nov 2026 09:04:49 GMT",
+      "etag": "\"2cd38cdd3b77dd1:0\"",
+      "baixado_em": "2026-11-18T19:07:01+00:00",
       "conteudo_mudou": null
     },
     {
       "nome": "CFEM_Autuacao.csv",
       "origem": "anm",
       "url": "https://dadosabertos.anm.gov.br/CFEM/CFEM_Autuacao.csv",
-      "tamanho_bytes": 3031515,
-      "sha256": "3151a78e5fc3a32fd35c53edbb35a8a3d22f6d099b3f991b9543a11f83f713ec",
-      "last_modified": "Sun, 15 Nov 2026 09:01:35 GMT",
-      "etag": "\"dd99eeadf74dd1:0\"",
-      "baixado_em": "2026-11-15T17:26:07+00:00",
+      "tamanho_bytes": 3031566,
+      "sha256": "0320f7b50e2191653b4e23d8af04dbc3db2755e2e3037015d000beea0578ea08",
+      "last_modified": "Wed, 18 Nov 2026 09:02:31 GMT",
+      "etag": "\"f094648b3b77dd1:0\"",
+      "baixado_em": "2026-11-18T19:07:03+00:00",
       "conteudo_mudou": null
     }
   ]
